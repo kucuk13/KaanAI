@@ -1,8 +1,10 @@
 from openai import OpenAI
 
-API_KEY = "YOUR API KEY"
+file = open('api_key.txt', 'r')
+api_key = file.read()
+file.close()
 
-client = OpenAI(api_key = API_KEY)
+client = OpenAI(api_key = api_key)
 conversation = []
 
 while True:
@@ -17,11 +19,11 @@ while True:
     )
     conversation.append({"role": "assistant", "content": response.choices[0].message.content})
 
-    speechResponse = client.audio.speech.create(
+    speech_response = client.audio.speech.create(
       model="tts-1",
       voice="nova",
       input=response.choices[0].message.content
     )
-    speechResponse.stream_to_file("output.mp3")
+    speech_response.stream_to_file("output.mp3")
     
     print(response.choices[0].message.content)
