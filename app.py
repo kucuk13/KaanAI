@@ -1,10 +1,7 @@
 from openai import OpenAI
+import api_key
 
-file = open('api_key.txt', 'r')
-api_key = file.read()
-file.close()
-
-client = OpenAI(api_key = api_key)
+client = OpenAI(api_key = api_key.get())
 conversation = []
 
 while True:
