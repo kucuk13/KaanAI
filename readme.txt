@@ -10,3 +10,7 @@ response = client.chat.completions.create(
     {"role": "user", "content": "Where was it played?"} #current question
   ]
 )
+
+git rm --cached api_key.txt
+git add .gitignore
+git commit -m "Ignore api_key.txt file"
