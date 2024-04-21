@@ -1,5 +1,9 @@
 pip install openai
+pip install Flask
+pip install PyGame
 
+
+http://localhost:5000/
 
 response = client.chat.completions.create(
   model="gpt-3.5-turbo",
