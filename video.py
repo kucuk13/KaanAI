@@ -1,35 +1,37 @@
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
+import textwrap
 
-# Görüntü boyutlarını belirleme
-width, height = 1280, 720
-
-# Arka planı oluşturma (eski kağıt rengi)
-background_color = (235, 220, 185)  # Açık kahverengi
-image = Image.new("RGB", (width, height), background_color)
-draw = ImageDraw.Draw(image)
-
-# Metin içeriği
-title = "Hi everyone! Welcome to today's video!"
-subtitle = "We are going to learn about something."
-
-# Yazı tipi ve boyutları
 def get_font(size):
     try:
         return ImageFont.truetype("arial.ttf", size)
-    except:
+    except IOError:
         return ImageFont.load_default()
 
-font_title = get_font(50)
-font_subtitle = get_font(40)
+def show_image(image):
+    plt.figure(figsize=(12, 7))
+    plt.imshow(image)
+    plt.axis("off")
+    plt.show()
 
-# Metni konumlandırma
-x, y = 50, 200
-draw.text((x, y), title, fill="black", font=font_title)
-draw.text((x, y + 100), subtitle, fill="black", font=font_subtitle)
+def save_image(image, output_path="output.png"):
+    image.save(output_path)
 
-# Görüntüyü gösterme
-plt.figure(figsize=(12, 7))
-plt.imshow(image)
-plt.axis("off")
-plt.show()
+def generate_image_with_text(title):
+    width, height = 1920, 1080
+    background_color = (235, 220, 185)
+    image = Image.new("RGB", (width, height), background_color)
+    draw = ImageDraw.Draw(image)
+
+    font_content = get_font(64)
+    
+    wrapped_text = textwrap.fill(title, width=40)  # Adjust width as needed
+    
+    x, y = 50, 200
+    draw.text((x, y), wrapped_text, fill="black", font=font_content)
+    
+    return image
+
+img = generate_image_with_text("Hi everyone! Welcome to today's video! We are going to learn about something.")
+#show_image(img)
+save_image(img)
