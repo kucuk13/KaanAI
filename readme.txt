@@ -1,6 +1,7 @@
 pip install openai
 pip install Flask
 pip install PyGame
+pip install matplotlib
 
 
 http://localhost:5000/
