@@ -8,15 +8,6 @@ def get_font(size):
     except IOError:
         return ImageFont.load_default()
 
-def get_text_from_file(file_name):
-    try:
-        with open(file_name, "r", encoding="utf-8") as file:
-            return file.read()
-    except FileNotFoundError:
-        return "No file found with the given name."
-    except Exception as e:
-        return f"An error occurred: {e}"
-
 def get_background_image(background_path):
     try:
         background = Image.open(background_path).convert("RGB")
@@ -50,9 +41,7 @@ def generate_image_with_text(text, output_path, background_path="youtube/input/b
     
     save_image(background, output_path)
 
-def create_images():
-    text_content = get_text_from_file("youtube/input/video_script.txt")
-    text_parts = text_content.split("***")
+def create_images(text_parts):
     for i, part in enumerate(text_parts):
         output_filename = f"youtube/output/images/output_part_{i+1}.png"
         generate_image_with_text(part.strip(), output_filename)
