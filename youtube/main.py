@@ -1,5 +1,6 @@
 import image_generator
 import voice_generator
+import video_generator
 
 def get_text_from_file(file_name):
     try:
@@ -12,5 +13,6 @@ def get_text_from_file(file_name):
 
 text_content = get_text_from_file("youtube/input/video_script.txt")
 text_parts = text_content.split("***")
-image_generator.create_images(text_parts)
-voice_generator.create_voices(text_parts)
+#image_generator.create_images(text_parts)
+#voice_generator.create_voices(text_parts)
+#video_generator.create_video()

@@ -2,6 +2,9 @@ pip install openai
 pip install Flask
 pip install PyGame
 pip install matplotlib
+pip install elevenlabs
+pip install python-dotenv
+pip install moviepy
 
 
 http://localhost:5000/

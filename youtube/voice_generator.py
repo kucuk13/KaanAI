@@ -19,7 +19,7 @@ def generate_voice_with_text(text, output_path):
         output_format="mp3_44100_128",
     )
     #play(speech_response)
-    save(voice,output_path)
+    save(voice, output_path)
 
 def create_voices(text_parts):
     for i, part in enumerate(text_parts):
