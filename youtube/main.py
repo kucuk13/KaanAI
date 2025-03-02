@@ -13,6 +13,8 @@ def get_text_from_file(file_name):
 
 text_content = get_text_from_file("youtube/input/video_script.txt")
 text_parts = text_content.split("***")
-#image_generator.create_images(text_parts)
-#voice_generator.create_voices(text_parts)
-#video_generator.create_video()
+
+image_generator.create_images(text_parts)
+voice_generator.create_voices(text_parts)
+video_generator.create_video_parts()
+video_generator.merge_video_parts()

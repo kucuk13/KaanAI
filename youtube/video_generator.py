@@ -1,5 +1,5 @@
 import os
-from moviepy import ImageClip, AudioFileClip
+from moviepy import ImageClip, AudioFileClip, VideoFileClip, concatenate_videoclips
 
 def create_video_parts():
     input_folder_for_voices = "youtube/output/voices"
@@ -25,5 +25,12 @@ def create_video_parts():
             output_video_path = os.path.join(output_folder, f"{base_name}.mp4")
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
-def create_video():
-    create_video_parts()
+def merge_video_parts():
+    output_folder = "youtube/output/videos"
+    video_files = sorted([f for f in os.listdir(output_folder) if f.endswith(".mp4")])
+    clips = [VideoFileClip(os.path.join(output_folder, video)) for video in video_files]
+    final_clip = concatenate_videoclips(clips, method="compose")
+    output_path = os.path.join("youtube/output/output.mp4")
+    final_clip.write_videofile(output_path, codec="libx264", fps=24)
+    for clip in clips:
+        clip.close()
