@@ -11,11 +11,11 @@ def get_font(size):
 def get_text_from_file(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as file:
-            return file.readlines()
+            return file.read()
     except FileNotFoundError:
-        return ["No file found with the given name."]
+        return "No file found with the given name."
     except Exception as e:
-        return [f"An error occurred: {e}"]
+        return f"An error occurred: {e}"
 
 def get_background_image(background_path):
     try:
@@ -30,25 +30,29 @@ def show_image(image):
     plt.axis("off")
     plt.show()
 
-def save_image(image, output_path="output.png"):
+def save_image(image, output_path):
     image.save(output_path)
 
-def generate_image_with_text(text_lines, background_path="background.png", wrap_width=50):
+def generate_image_with_text(text, output_path, background_path="youtube/input/background.png", wrap_width=50):
     background = get_background_image(background_path)
     draw = ImageDraw.Draw(background)
     font_content = get_font(72)
     
     x, y = 50, 200
     line_spacing = 60
-
-    for line in text_lines:
+    
+    for line in text.split("\n"):
         wrapped_lines = textwrap.wrap(line.strip(), width=wrap_width)
         for wrapped_line in wrapped_lines:
             draw.text((x, y), wrapped_line, fill="black", font=font_content)
             y += line_spacing
+        y += line_spacing
+    
+    save_image(background, output_path)
 
-    return background
-
-text_lines = get_text_from_file("video_script.txt")
-img = generate_image_with_text(text_lines)
-save_image(img)
+def create_images():
+    text_content = get_text_from_file("youtube/input/video_script.txt")
+    text_parts = text_content.split("***")
+    for i, part in enumerate(text_parts):
+        output_filename = f"youtube/output/images/output_part_{i+1}.png"
+        generate_image_with_text(part.strip(), output_filename)
