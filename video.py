@@ -17,6 +17,13 @@ def get_text_from_file(file_name):
     except Exception as e:
         return [f"An error occurred: {e}"]
 
+def get_background_image(background_path):
+    try:
+        background = Image.open(background_path).convert("RGB")
+    except FileNotFoundError:
+        background = Image.new("RGB", (1920, 1080), (235, 220, 185))
+    return background
+
 def show_image(image):
     plt.figure(figsize=(12, 7))
     plt.imshow(image)
@@ -26,12 +33,9 @@ def show_image(image):
 def save_image(image, output_path="output.png"):
     image.save(output_path)
 
-def generate_image_with_text(text_lines, wrap_width=40):
-    width, height = 1920, 1080
-    background_color = (235, 220, 185)
-    image = Image.new("RGB", (width, height), background_color)
-    draw = ImageDraw.Draw(image)
-
+def generate_image_with_text(text_lines, background_path="background.png", wrap_width=50):
+    background = get_background_image(background_path)
+    draw = ImageDraw.Draw(background)
     font_content = get_font(72)
     
     x, y = 50, 200
@@ -43,9 +47,8 @@ def generate_image_with_text(text_lines, wrap_width=40):
             draw.text((x, y), wrapped_line, fill="black", font=font_content)
             y += line_spacing
 
-    return image
+    return background
 
 text_lines = get_text_from_file("video_script.txt")
-img = generate_image_with_text(text_lines, wrap_width=50)
-#show_image(img)
+img = generate_image_with_text(text_lines)
 save_image(img)
