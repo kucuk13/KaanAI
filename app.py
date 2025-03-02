@@ -1,7 +1,7 @@
 from openai import OpenAI
 import api_key
 
-client = OpenAI(api_key = api_key.get())
+client = OpenAI(api_key = api_key.get("chat-gpt-api-key"))
 conversation = []
 
 while True:
