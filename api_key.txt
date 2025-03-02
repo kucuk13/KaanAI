@@ -1,2 +1,0 @@
-chat-gpt-api-key=***
-eleven-labs-api-key=***
