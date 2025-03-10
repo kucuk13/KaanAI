@@ -30,7 +30,7 @@ def generate_image_with_text(text, output_path, background_path="youtube/input/b
     font_content = get_font(72)
     
     x, y = 50, 200
-    line_spacing = 60
+    line_spacing = 70
     
     for line in text.split("\n"):
         wrapped_lines = textwrap.wrap(line.strip(), width=wrap_width)

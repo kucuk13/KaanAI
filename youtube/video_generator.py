@@ -1,5 +1,6 @@
 import os
-from moviepy import ImageClip, AudioFileClip, VideoFileClip, concatenate_videoclips
+import subprocess
+from moviepy import ImageClip, AudioFileClip
 
 def create_video_parts():
     input_folder_for_voices = "youtube/output/voices"
@@ -28,9 +29,17 @@ def create_video_parts():
 def merge_video_parts():
     output_folder = "youtube/output/videos"
     video_files = sorted([f for f in os.listdir(output_folder) if f.endswith(".mp4")])
-    clips = [VideoFileClip(os.path.join(output_folder, video)) for video in video_files]
-    final_clip = concatenate_videoclips(clips, method="compose")
-    output_path = os.path.join("youtube/output/output.mp4")
-    final_clip.write_videofile(output_path, codec="libx264", fps=24)
-    for clip in clips:
-        clip.close()
+    concat_list_path = "files_to_concat.txt"
+    with open(concat_list_path, "w", encoding="utf-8") as f:
+        for vf in video_files:
+            full_path = os.path.join(output_folder, vf)
+            f.write(f"file '{full_path}'\n")
+    output_path = os.path.join("youtube", "output", "output.mp4")
+    subprocess.run([
+        "ffmpeg",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", concat_list_path,
+        "-c", "copy",
+        output_path
+    ])
