@@ -24,13 +24,13 @@ def show_image(image):
 def save_image(image, output_path):
     image.save(output_path)
 
-def generate_image_with_text(text, output_path, background_path="youtube/input/background.png", wrap_width=50):
+def generate_image_with_text(text, output_path, background_path="youtube/input/background.png", wrap_width=48):
     background = get_background_image(background_path)
     draw = ImageDraw.Draw(background)
     font_content = get_font(72)
     
-    x, y = 50, 200
-    line_spacing = 70
+    x, y = 50, 150
+    line_spacing = 72
     
     for line in text.split("\n"):
         wrapped_lines = textwrap.wrap(line.strip(), width=wrap_width)
