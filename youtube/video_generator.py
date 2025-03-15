@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 from moviepy import ImageClip, AudioFileClip
 
 def create_video_parts():
@@ -26,15 +27,23 @@ def create_video_parts():
             output_video_path = os.path.join(output_folder, f"{base_name}.mp4")
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
+def numerical_sort(value):
+    numbers = re.findall(r'\d+', value)
+    return int(numbers[0]) if numbers else 0
+
 def merge_video_parts():
     output_folder = "youtube/output/videos"
-    video_files = sorted([f for f in os.listdir(output_folder) if f.endswith(".mp4")])
+    video_files = sorted(
+        [f for f in os.listdir(output_folder) if f.endswith(".mp4")],
+        key=numerical_sort
+    )
     concat_list_path = "files_to_concat.txt"
     outro_video = "youtube/input/outro.mp4"
     with open(concat_list_path, "w", encoding="utf-8") as f:
         for vf in video_files:
             full_path = os.path.join(output_folder, vf)
             f.write(f"file '{full_path}'\n")
+            print(f"Processing {vf}")
         if os.path.exists(outro_video):
             f.write(f"file '{outro_video}'\n")
     output_path = os.path.join("youtube", "output", "output.mp4")
