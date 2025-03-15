@@ -30,10 +30,13 @@ def merge_video_parts():
     output_folder = "youtube/output/videos"
     video_files = sorted([f for f in os.listdir(output_folder) if f.endswith(".mp4")])
     concat_list_path = "files_to_concat.txt"
+    outro_video = "youtube/input/outro.mp4"
     with open(concat_list_path, "w", encoding="utf-8") as f:
         for vf in video_files:
             full_path = os.path.join(output_folder, vf)
             f.write(f"file '{full_path}'\n")
+        if os.path.exists(outro_video):
+            f.write(f"file '{outro_video}'\n")
     output_path = os.path.join("youtube", "output", "output.mp4")
     subprocess.run([
         "ffmpeg",
