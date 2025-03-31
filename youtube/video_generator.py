@@ -43,7 +43,6 @@ def merge_video_parts():
         for vf in video_files:
             full_path = os.path.join(output_folder, vf)
             f.write(f"file '{full_path}'\n")
-            print(f"Processing {vf}")
         if os.path.exists(outro_video):
             f.write(f"file '{outro_video}'\n")
     output_path = os.path.join("youtube", "output", "output.mp4")
