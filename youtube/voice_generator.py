@@ -7,6 +7,9 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import api_key
 
+amelia = "ZF6FPAbjXT4488VcRRnw"
+adam = "wBXNqKUATyqu0RtYt25i"
+
 def generate_voice_with_text(text, output_path):
     client = ElevenLabs(
       api_key=api_key.get("eleven-labs-api-key"),
@@ -14,7 +17,7 @@ def generate_voice_with_text(text, output_path):
 
     voice = client.text_to_speech.convert(
         text=text,
-        voice_id="ZF6FPAbjXT4488VcRRnw",
+        voice_id=adam,
         model_id="eleven_multilingual_v2",
         output_format="mp3_44100_128",
     )
