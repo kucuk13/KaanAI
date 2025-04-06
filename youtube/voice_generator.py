@@ -37,7 +37,7 @@ def generate_voice_with_text_using_chatgpt_api(text, output_filename):
     
     text = text.replace("X:", "")
     text = text.replace("O:", "")
-
+    
     try:
         with client.audio.speech.with_streaming_response.create(
             model="tts-1",

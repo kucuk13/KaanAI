@@ -7,6 +7,7 @@ import file_manager
 is_test = True
 is_short_video = False
 is_using_default_outro = False
+#if short video, edit voice_generator.generate_voice_with_text_using_chatgpt_api
 
 #intermediate operations
 file_manager.create_directory_if_not_exists("youtube/output")
