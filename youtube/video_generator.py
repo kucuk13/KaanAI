@@ -11,11 +11,11 @@ concat_list_path = "files_to_concat.txt"
 
 def create_video_parts():
     audio_files = sorted(
-        [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp4")],
+        [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
         key=numerical_sort
     )
     image_files = sorted(
-        [f for f in os.listdir(input_folder_for_images) if f.endswith(".mp4")],
+        [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
         key=numerical_sort
     )
 
