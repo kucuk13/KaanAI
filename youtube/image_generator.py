@@ -41,7 +41,8 @@ def generate_image_with_text(text, output_path, background_path="youtube/input/b
     
     save_image(background, output_path)
 
-def create_images(text_parts):
-    for i, part in enumerate(text_parts):
-        output_filename = f"youtube/output/images/{i+1}.png"
-        generate_image_with_text(part.strip(), output_filename)
+def create_images(text_parts, is_short_video):
+    if not is_short_video:
+        for i, part in enumerate(text_parts):
+            output_filename = f"youtube/output/images/{i+1}.png"
+            generate_image_with_text(part.strip(), output_filename)

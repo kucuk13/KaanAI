@@ -3,15 +3,21 @@ import subprocess
 import re
 from moviepy import ImageClip, AudioFileClip
 
-def create_video_parts():
-    input_folder_for_voices = "youtube/output/voices"
-    input_folder_for_images = "youtube/output/images"
-    output_folder = "youtube/output/videos"
-    
-    os.makedirs(output_folder, exist_ok=True)
+outro_video = "youtube/input/outro.mp4"
+input_folder_for_voices = "youtube/output/voices"
+input_folder_for_images = "youtube/output/images"
+output_folder = "youtube/output/videos"
+concat_list_path = "files_to_concat.txt"
 
-    audio_files = os.listdir(input_folder_for_voices)
-    image_files = os.listdir(input_folder_for_images)
+def create_video_parts():
+    audio_files = sorted(
+        [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp4")],
+        key=numerical_sort
+    )
+    image_files = sorted(
+        [f for f in os.listdir(input_folder_for_images) if f.endswith(".mp4")],
+        key=numerical_sort
+    )
 
     for audio_file in audio_files:
         base_name = os.path.splitext(audio_file)[0]
@@ -31,21 +37,21 @@ def numerical_sort(value):
     numbers = re.findall(r'\d+', value)
     return int(numbers[0]) if numbers else 0
 
-def merge_video_parts():
-    output_folder = "youtube/output/videos"
+def merge_video_parts(is_using_default_outro):
     video_files = sorted(
         [f for f in os.listdir(output_folder) if f.endswith(".mp4")],
         key=numerical_sort
     )
-    concat_list_path = "files_to_concat.txt"
-    outro_video = "youtube/input/outro.mp4"
+    
     with open(concat_list_path, "w", encoding="utf-8") as f:
         for vf in video_files:
             full_path = os.path.join(output_folder, vf)
             f.write(f"file '{full_path}'\n")
-        if os.path.exists(outro_video):
+        if is_using_default_outro and os.path.exists(outro_video):
             f.write(f"file '{outro_video}'\n")
+    
     output_path = os.path.join("youtube", "output", "output.mp4")
+    
     subprocess.run([
         "ffmpeg",
         "-f", "concat",
