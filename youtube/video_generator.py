@@ -60,3 +60,12 @@ def merge_video_parts(is_using_default_outro):
         "-c", "copy",
         output_path
     ])
+
+def create_silent_mp3(time="0.1"):
+    subprocess.run([
+        "ffmpeg",
+        "-f", "lavfi",
+        "-t", time,
+        "-i", "anullsrc=r=44100:cl=stereo",
+        "interval.mp3"
+    ])
