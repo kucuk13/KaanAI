@@ -1,8 +1,10 @@
 import os
 import subprocess
 import re
-from moviepy import ImageClip, AudioFileClip
+from moviepy import AudioArrayClip, AudioFileClip, ImageClip, concatenate_audioclips
+import numpy as np
 
+silence_duration = 0.2
 outro_video = "youtube/input/outro.mp4"
 input_folder_for_voices = "youtube/output/voices"
 input_folder_for_images = "youtube/output/images"
@@ -28,8 +30,10 @@ def create_video_parts():
             audio_path = os.path.join(input_folder_for_voices, audio_file)
             image_path = os.path.join(input_folder_for_images, image_file)
             audio_clip = AudioFileClip(audio_path)
-            image_clip = ImageClip(image_path, duration=audio_clip.duration)
-            video = image_clip.with_audio(audio_clip)
+            silence = AudioArrayClip(np.zeros((int(44100 * silence_duration), 2)), fps=44100)
+            full_audio = concatenate_audioclips([audio_clip, silence])
+            image_clip = ImageClip(image_path, duration=audio_clip.duration + silence_duration)
+            video = image_clip.with_audio(full_audio)
             output_video_path = os.path.join(output_folder, f"{base_name}.mp4")
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
@@ -59,13 +63,4 @@ def merge_video_parts(is_using_default_outro):
         "-i", concat_list_path,
         "-c", "copy",
         output_path
-    ])
-
-def create_silent_mp3(time="0.1"):
-    subprocess.run([
-        "ffmpeg",
-        "-f", "lavfi",
-        "-t", time,
-        "-i", "anullsrc=r=44100:cl=stereo",
-        "interval.mp3"
     ])
