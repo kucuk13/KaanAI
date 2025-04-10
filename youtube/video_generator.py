@@ -4,7 +4,7 @@ import re
 from moviepy import AudioArrayClip, AudioFileClip, ImageClip, concatenate_audioclips
 import numpy as np
 
-silence_duration = 0.2
+silence_duration = 0.1
 outro_video = "youtube/input/outro.mp4"
 input_folder_for_voices = "youtube/output/voices"
 input_folder_for_images = "youtube/output/images"
