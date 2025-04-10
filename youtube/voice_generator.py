@@ -20,9 +20,7 @@ chat_gpt_shimmer = "shimmer" #cheerful, middle-aged
 
 #chatgpt male voices 
 chatgpt_ash = "ash" #standard, young
-chatgpt_ballad = "ballad" #young
 chatgpt_echo = "echo" #soft, young
-chatgpt_verse = "verse" #enthusiastic, young
 chatgpt_onyx = "onyx" #standard, middle-aged*
 
 def generate_voice_with_text_using_eleven_labs_api(text, output_path):
