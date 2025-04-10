@@ -9,9 +9,21 @@ import api_key
 
 eleven_labs_amelia = "ZF6FPAbjXT4488VcRRnw"
 eleven_labs_adam = "wBXNqKUATyqu0RtYt25i"
-chat_gpt_young_woman = "nova"
-chat_gpt_middle_aged_woman = "alloy"
-chat_gpt_middle_aged_man = "onyx"
+
+#chatgpt female voices 
+chat_gpt_alloy = "alloy" #standard, middle-aged*
+chat_gpt_carol = "carol" #enthusiastic, young
+chat_gpt_fable = "fable" #standard, middle-aged
+chat_gpt_nova = "nova" #cheerful, young*
+chat_gpt_sage = "sage" #cheerful, young
+chat_gpt_shimmer = "shimmer" #cheerful, middle-aged
+
+#chatgpt male voices 
+chatgpt_ash = "ash" #standard, young
+chatgpt_ballad = "ballad" #young
+chatgpt_echo = "echo" #soft, young
+chatgpt_verse = "verse" #enthusiastic, young
+chatgpt_onyx = "onyx" #standard, middle-aged*
 
 def generate_voice_with_text_using_eleven_labs_api(text, output_path):
     client = ElevenLabs(
@@ -31,9 +43,9 @@ def generate_voice_with_text_using_chatgpt_api(text, output_filename):
     client = OpenAI(api_key = api_key.get("chat-gpt-api-key"))
     
     if "X:" in text:
-        voice = chat_gpt_young_woman
+        voice = chat_gpt_nova
     else:
-        voice = chat_gpt_middle_aged_man
+        voice = chatgpt_onyx
     
     text = text.replace("X:", "")
     text = text.replace("O:", "")
