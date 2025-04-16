@@ -14,14 +14,14 @@ eleven_labs_adam = "wBXNqKUATyqu0RtYt25i"
 chat_gpt_alloy = "alloy" #standard, middle-aged*
 chat_gpt_carol = "carol" #enthusiastic, young
 chat_gpt_fable = "fable" #standard, middle-aged
-chat_gpt_nova = "nova" #cheerful, young*
+chat_gpt_nova = "nova" #cheerful, young**
 chat_gpt_sage = "sage" #cheerful, young
 chat_gpt_shimmer = "shimmer" #cheerful, middle-aged
 
 #chatgpt male voices 
-chatgpt_ash = "ash" #standard, young
+chatgpt_ash = "ash" #standard, young*
 chatgpt_echo = "echo" #soft, young
-chatgpt_onyx = "onyx" #standard, middle-aged*
+chatgpt_onyx = "onyx" #standard, middle-aged**
 
 def generate_voice_with_text_using_eleven_labs_api(text, output_path):
     client = ElevenLabs(
