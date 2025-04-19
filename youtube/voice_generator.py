@@ -12,10 +12,9 @@ eleven_labs_adam = "wBXNqKUATyqu0RtYt25i"
 
 #chatgpt female voices 
 chat_gpt_alloy = "alloy" #standard, middle-aged*
-chat_gpt_carol = "carol" #enthusiastic, young
 chat_gpt_fable = "fable" #standard, middle-aged
 chat_gpt_nova = "nova" #cheerful, young**
-chat_gpt_sage = "sage" #cheerful, young
+chat_gpt_sage = "sage" #cheerful, young*
 chat_gpt_shimmer = "shimmer" #cheerful, middle-aged
 
 #chatgpt male voices 
