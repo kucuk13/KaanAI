@@ -61,6 +61,10 @@ def merge_video_parts(is_using_default_outro):
         "-f", "concat",
         "-safe", "0",
         "-i", concat_list_path,
-        "-c", "copy",
+        "-c:v", "libx264",
+        "-c:a", "aac",
+        "-strict", "experimental",
+        "-b:a", "192k",
+        "-preset", "fast",
         output_path
     ])
