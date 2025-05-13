@@ -1,6 +1,8 @@
 from elevenlabs.client import ElevenLabs
 from elevenlabs import save
 from openai import OpenAI
+from pydub import AudioSegment, silence
+import re
 
 import os
 import sys
@@ -67,3 +69,42 @@ def create_voices(text_parts, is_short_video):
             generate_voice_with_text_using_chatgpt_api(part.strip(), output_filename)
         else:
             generate_voice_with_text_using_eleven_labs_api(part.strip(), output_filename)
+
+def clean_voice_file(input_file_path, output_file_path):
+    voice = AudioSegment.from_mp3(input_file_path)
+
+    non_silence_segments = silence.split_on_silence(
+        voice,
+        min_silence_len=700,   # Minimum silence length (in ms) to consider as silence
+        silence_thresh=-40,     # Silence threshold (in dB)
+        keep_silence=100        # Keep 100ms of silence at edges
+    )
+    
+    if not non_silence_segments:
+        print(f"Warning: No audible sound found in {input_file_path}.")
+        return
+    
+    output_voice = AudioSegment.empty()
+    for segment in non_silence_segments:
+        output_voice += segment
+    
+    output_voice.export(output_file_path, format="mp3")
+    print(f"Completed: {output_file_path}")
+
+def numerical_sort(value):
+    numbers = re.findall(r'\d+', value)
+    return int(numbers[0]) if numbers else 0
+
+def clean_voice_files():
+    input_path_temp = os.path.abspath("youtube/output/voices")
+    output_path_temp = os.path.abspath("youtube/output/audios")
+    
+    voice_files = sorted(
+        [f for f in os.listdir(input_path_temp) if f.endswith(".mp3")],
+        key=numerical_sort
+    )
+
+    for file_name in voice_files:
+        input_path = os.path.join(input_path_temp, file_name)
+        output_path = os.path.join(output_path_temp, f"{file_name}")
+        clean_voice_file(input_path, output_path)

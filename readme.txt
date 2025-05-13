@@ -5,6 +5,7 @@ pip install matplotlib
 pip install elevenlabs
 pip install python-dotenv
 pip install moviepy
+pip install pydub
 
 
 http://localhost:5000/
