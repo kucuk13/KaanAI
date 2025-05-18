@@ -6,6 +6,8 @@ pip install elevenlabs
 pip install python-dotenv
 pip install moviepy
 pip install pydub
+pip install pandas
+pip install openpyxl
 
 
 http://localhost:5000/
