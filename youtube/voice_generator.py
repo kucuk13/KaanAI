@@ -62,10 +62,10 @@ def generate_voice_with_text_using_chatgpt_api(text, output_filename):
     except Exception as e:
         print(f".Error: {e}")
 
-def create_voices(text_parts, is_short_video):
+def create_voices(text_parts, is_chatgpt):
     for i, part in enumerate(text_parts):
         output_filename = f"youtube/output/voices/{i+1}.mp3"
-        if is_short_video:
+        if is_chatgpt:
             generate_voice_with_text_using_chatgpt_api(part.strip(), output_filename)
         else:
             generate_voice_with_text_using_eleven_labs_api(part.strip(), output_filename)
