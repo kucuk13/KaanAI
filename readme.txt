@@ -8,6 +8,7 @@ pip install moviepy
 pip install pydub
 pip install pandas
 pip install openpyxl
+pip install rarfile
 
 
 http://localhost:5000/

@@ -1,3 +1,4 @@
+import rarfile
 import os
 import subprocess
 import re
@@ -8,6 +9,7 @@ silence_duration = 0.1
 outro_video = "youtube/input/outro.mp4"
 input_folder_for_voices = "youtube/output/voices"
 input_folder_for_images = "youtube/output/images"
+input_rar_folder_for_images = "youtube/input/images.rar"
 output_folder = "youtube/output/videos"
 concat_list_path = "files_to_concat.txt"
 
@@ -16,11 +18,15 @@ def create_video_parts():
         [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
         key=numerical_sort
     )
+    
+    os.makedirs(input_folder_for_images, exist_ok=True)
+    with rarfile.RarFile(input_rar_folder_for_images) as archive:
+        archive.extractall(path=input_folder_for_images)
     image_files = sorted(
         [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
         key=numerical_sort
     )
-
+    
     for audio_file in audio_files:
         base_name = os.path.splitext(audio_file)[0]
         matching_images = [img for img in image_files if base_name in img]
