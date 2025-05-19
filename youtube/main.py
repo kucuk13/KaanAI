@@ -19,7 +19,7 @@ def create_questions_and_answers_video():
     text_parts = text_content.splitlines()
     voice_generator.create_voices(text_parts, True)
     video_generator.create_video_parts(True)
-    video_generator.merge_video_parts(False)
+    video_generator.merge_video_parts("youtube/input/questions_and_answers_outro.mp4")
     video_generator.slow_down_video(speed_factor=0.9)
 
 def create_story_video():
@@ -28,7 +28,7 @@ def create_story_video():
     image_generator.create_images(text_parts)
     voice_generator.create_voices(text_parts, True)
     video_generator.create_video_parts(False)
-    video_generator.merge_video_parts(True)
+    video_generator.merge_video_parts("youtube/input/outro.mp4")
 
 #main methods
 #data_generator.create_bulk_data()

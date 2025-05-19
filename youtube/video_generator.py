@@ -53,7 +53,7 @@ def numerical_sort(value):
     numbers = re.findall(r'\d+', value)
     return int(numbers[0]) if numbers else 0
 
-def merge_video_parts(is_using_default_outro):
+def merge_video_parts(outro_video):
     video_files = sorted(
         [f for f in os.listdir(output_folder) if f.endswith(".mp4")],
         key=numerical_sort
@@ -63,7 +63,7 @@ def merge_video_parts(is_using_default_outro):
         for vf in video_files:
             full_path = os.path.join(output_folder, vf)
             f.write(f"file '{full_path}'\n")
-        if is_using_default_outro and os.path.exists(outro_video):
+        if os.path.exists(outro_video):
             f.write(f"file '{outro_video}'\n")
     
     output_path = os.path.join("youtube", "output", "output.mp4")
