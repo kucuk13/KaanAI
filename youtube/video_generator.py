@@ -1,4 +1,4 @@
-import rarfile
+import zipfile
 import os
 import subprocess
 import re
@@ -9,7 +9,7 @@ silence_duration = 0.1
 outro_video = "youtube/input/outro.mp4"
 input_folder_for_voices = "youtube/output/voices"
 input_folder_for_images = "youtube/output/images"
-input_rar_folder_for_images = "youtube/input/images.rar"
+input_zip_folder_for_images = "youtube/input/images.zip"
 output_folder = "youtube/output/videos"
 concat_list_path = "files_to_concat.txt"
 
@@ -21,7 +21,7 @@ def create_video_parts(is_rar):
     
     if is_rar:
         os.makedirs(input_folder_for_images, exist_ok=True)
-        with rarfile.RarFile(input_rar_folder_for_images) as archive:
+        with zipfile.ZipFile(input_zip_folder_for_images, 'r') as archive:
             archive.extractall(path=input_folder_for_images)
         image_files = sorted(
             [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
