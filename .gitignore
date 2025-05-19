@@ -5,3 +5,4 @@ files_to_concat.txt
 *.png
 *.mp3
 *.mp4
+*.xlsx
