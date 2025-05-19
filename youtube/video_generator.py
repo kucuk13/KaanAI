@@ -13,13 +13,13 @@ input_zip_folder_for_images = "youtube/input/images.zip"
 output_folder = "youtube/output/videos"
 concat_list_path = "files_to_concat.txt"
 
-def create_video_parts(is_rar):
+def create_video_parts(is_zip):
     audio_files = sorted(
         [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
         key=numerical_sort
     )
     
-    if is_rar:
+    if is_zip:
         os.makedirs(input_folder_for_images, exist_ok=True)
         with zipfile.ZipFile(input_zip_folder_for_images, 'r') as archive:
             archive.extractall(path=input_folder_for_images)
