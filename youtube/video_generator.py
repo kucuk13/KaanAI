@@ -83,24 +83,21 @@ def merge_video_parts(outro_video):
     
     subprocess.run(cmd, check=True)
 
-def slow_down_video(speed_factor=0.9):
-    input_video = os.path.join("youtube", "output", "output.mp4")
-    output_video = os.path.join("youtube", "output", "video.mp4")
-    
-    if not os.path.exists(input_video):
-        raise FileNotFoundError(f"Input video not found: {input_video}")
+def change_video_speed(input_video_path, output_video_path, speed_factor):
+    if not os.path.exists(input_video_path):
+        raise FileNotFoundError(f"Input video not found: {input_video_path}")
     
     setpts_value = str(round(1 / speed_factor, 4))
     atempo_value = str(speed_factor)
     
     cmd = [
         "ffmpeg",
-        "-i", input_video,
+        "-i", input_video_path,
         "-filter_complex", f"[0:v]setpts={setpts_value}*PTS[v];[0:a]atempo={atempo_value}[a]",
         "-map", "[v]",
         "-map", "[a]",
         "-preset", "fast",
-        output_video
+        output_video_path
     ]
     
     subprocess.run(cmd, check=True)
