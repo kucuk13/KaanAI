@@ -6,14 +6,13 @@ import numpy as np
 import sort_manager
 
 silence_duration = 0.5
-outro_video = "youtube/input/outro.mp4"
 input_folder_for_voices = "youtube/output/voices"
 input_folder_for_images = "youtube/output/images"
 input_zip_folder_for_images = "youtube/input/images.zip"
-output_folder = "youtube/output/videos"
+
 concat_list_path = "files_to_concat.txt"
 
-def create_video_parts(is_zip):
+def create_video_parts(is_zip, output_video_path):
     audio_files = sorted(
         [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
         key=sort_manager.numerical_sort
@@ -46,7 +45,7 @@ def create_video_parts(is_zip):
             full_audio = concatenate_audioclips([audio_clip, silence])
             image_clip = ImageClip(image_path, duration=audio_clip.duration + silence_duration)
             video = image_clip.with_audio(full_audio)
-            output_video_path = os.path.join(output_folder, f"{base_name}.mp4")
+            output_video_path = os.path.join(output_video_path, f"{base_name}.mp4")
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
 def merge_video_parts(outro_video_path, input_videos_path, output_video_path):
