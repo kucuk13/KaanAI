@@ -2,7 +2,7 @@ from elevenlabs.client import ElevenLabs
 from elevenlabs import save
 from openai import OpenAI
 from pydub import AudioSegment, silence
-import re
+import sort_manager
 
 import os
 import sys
@@ -91,17 +91,13 @@ def clean_voice_file(input_file_path, output_file_path):
     output_voice.export(output_file_path, format="mp3")
     print(f"Completed: {output_file_path}")
 
-def numerical_sort(value):
-    numbers = re.findall(r'\d+', value)
-    return int(numbers[0]) if numbers else 0
-
 def clean_voice_files():
     input_path_temp = os.path.abspath("youtube/output/voices")
     output_path_temp = os.path.abspath("youtube/output/audios")
     
     voice_files = sorted(
         [f for f in os.listdir(input_path_temp) if f.endswith(".mp3")],
-        key=numerical_sort
+        key=sort_manager.numerical_sort
     )
 
     for file_name in voice_files:

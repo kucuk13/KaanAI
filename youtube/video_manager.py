@@ -1,9 +1,9 @@
 import zipfile
 import os
 import subprocess
-import re
 from moviepy import AudioArrayClip, AudioFileClip, ImageClip, concatenate_audioclips
 import numpy as np
+import sort_manager
 
 silence_duration = 0.5
 outro_video = "youtube/input/outro.mp4"
@@ -16,7 +16,7 @@ concat_list_path = "files_to_concat.txt"
 def create_video_parts(is_zip):
     audio_files = sorted(
         [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
-        key=numerical_sort
+        key=sort_manager.numerical_sort
     )
     
     if is_zip:
@@ -25,12 +25,12 @@ def create_video_parts(is_zip):
             archive.extractall(path=input_folder_for_images)
         image_files = sorted(
             [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
-            key=numerical_sort
+            key=sort_manager.numerical_sort
         )
     else:
         image_files = sorted(
             [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
-            key=numerical_sort
+            key=sort_manager.numerical_sort
         )
     
     for audio_file in audio_files:
@@ -49,24 +49,18 @@ def create_video_parts(is_zip):
             output_video_path = os.path.join(output_folder, f"{base_name}.mp4")
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
-def numerical_sort(value):
-    numbers = re.findall(r'\d+', value)
-    return int(numbers[0]) if numbers else 0
-
-def merge_video_parts(outro_video):
+def merge_video_parts(outro_video_path, input_videos_path, output_video_path):
     video_files = sorted(
-        [f for f in os.listdir(output_folder) if f.endswith(".mp4")],
-        key=numerical_sort
+        [f for f in os.listdir(input_videos_path) if f.endswith(".mp4")],
+        key=sort_manager.numerical_sort
     )
     
     with open(concat_list_path, "w", encoding="utf-8") as f:
         for vf in video_files:
-            full_path = os.path.join(output_folder, vf)
+            full_path = os.path.join(input_videos_path, vf)
             f.write(f"file '{full_path}'\n")
-        if os.path.exists(outro_video):
-            f.write(f"file '{outro_video}'\n")
-    
-    output_path = os.path.join("youtube", "output", "output.mp4")
+        if os.path.exists(outro_video_path):
+            f.write(f"file '{outro_video_path}'\n")
     
     cmd = [
         "ffmpeg",
@@ -78,7 +72,7 @@ def merge_video_parts(outro_video):
         "-strict", "experimental",
         "-b:a", "192k",
         "-preset", "fast",
-        output_path
+        output_video_path
     ]
     
     subprocess.run(cmd, check=True)
