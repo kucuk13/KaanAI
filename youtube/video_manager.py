@@ -1,36 +1,19 @@
-import zipfile
 import os
 import subprocess
 from moviepy import AudioArrayClip, AudioFileClip, ImageClip, concatenate_audioclips
 import numpy as np
 import sort_manager
 
-silence_duration = 0.5
-input_folder_for_voices = "youtube/output/voices"
-input_folder_for_images = "youtube/output/images"
-input_zip_folder_for_images = "youtube/input/images.zip"
-
-concat_list_path = "files_to_concat.txt"
-
-def create_video_parts(is_zip, output_video_path):
+def create_video_parts(input_folder_for_images, input_folder_for_voices, output_video_path, silence_duration=0.5):
     audio_files = sorted(
         [f for f in os.listdir(input_folder_for_voices) if f.endswith(".mp3")],
         key=sort_manager.numerical_sort
     )
     
-    if is_zip:
-        os.makedirs(input_folder_for_images, exist_ok=True)
-        with zipfile.ZipFile(input_zip_folder_for_images, 'r') as archive:
-            archive.extractall(path=input_folder_for_images)
-        image_files = sorted(
-            [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
-            key=sort_manager.numerical_sort
-        )
-    else:
-        image_files = sorted(
-            [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
-            key=sort_manager.numerical_sort
-        )
+    image_files = sorted(
+        [f for f in os.listdir(input_folder_for_images) if f.endswith(".png")],
+        key=sort_manager.numerical_sort
+    )
     
     for audio_file in audio_files:
         base_name = os.path.splitext(audio_file)[0]
@@ -49,6 +32,8 @@ def create_video_parts(is_zip, output_video_path):
             video.write_videofile(output_video_path, fps=24, codec="libx264")
 
 def merge_video_parts(outro_video_path, input_videos_path, output_video_path):
+    concat_list_path = "files_to_concat.txt"
+    
     video_files = sorted(
         [f for f in os.listdir(input_videos_path) if f.endswith(".mp4")],
         key=sort_manager.numerical_sort
