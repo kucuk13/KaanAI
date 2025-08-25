@@ -13,42 +13,35 @@ eleven_labs_amelia = "ZF6FPAbjXT4488VcRRnw"
 eleven_labs_adam = "wBXNqKUATyqu0RtYt25i"
 
 #chatgpt female voices 
-chat_gpt_alloy = "alloy" #standard, middle-aged*
-chat_gpt_fable = "fable" #standard, middle-aged
-chat_gpt_nova = "nova" #cheerful, young**
-chat_gpt_sage = "sage" #cheerful, young*
-chat_gpt_shimmer = "shimmer" #cheerful, middle-aged
+chatgpt_alloy = "alloy" #standard, middle-aged*
+chatgpt_fable = "fable" #standard, middle-aged
+chatgpt_nova = "nova" #cheerful, young**
+chatgpt_sage = "sage" #cheerful, young*
+chatgpt_shimmer = "shimmer" #cheerful, middle-aged
 
 #chatgpt male voices 
 chatgpt_ash = "ash" #standard, young
 chatgpt_echo = "echo" #soft, young*
 chatgpt_onyx = "onyx" #standard, middle-aged**
 
-def generate_voice_with_text_using_eleven_labs_api(text, output_path):
-    client = ElevenLabs(
-      api_key=api_key.get("eleven-labs-api-key"),
-    )
+def generate_voices_using_chatgpt_api(text_parts, voice1, voice2, voice3, voice4):
+    for i, text in enumerate(text_parts):
+        output_filename = f"youtube/output/voices/{i+1}.mp3"
+        if "1:" in text:
+            text = text.replace("1:", "")
+            generate_voice_using_chatgpt_api(text.strip(), voice1, output_filename)
+        elif "2:" in text:
+            text = text.replace("2:", "")
+            generate_voice_using_chatgpt_api(text.strip(), voice2, output_filename)
+        elif "3:" in text:
+            text = text.replace("3:", "")
+            generate_voice_using_chatgpt_api(text.strip(), voice3, output_filename)
+        else:
+            text = text.replace("4:", "")
+            generate_voice_using_chatgpt_api(text.strip(), voice4, output_filename)
 
-    voice = client.text_to_speech.convert(
-        text=text,
-        voice_id=eleven_labs_adam,
-        model_id="eleven_multilingual_v2",
-        output_format="mp3_44100_128",
-    )
-    save(voice, output_path)
-
-def generate_voice_with_text_using_chatgpt_api(text, output_filename):
-    voice = ""
+def generate_voice_using_chatgpt_api(text, voice, output_filename):
     client = OpenAI(api_key = api_key.get("chat-gpt-api-key"))
-    
-    if "X:" in text:
-        voice = chat_gpt_nova
-    else:
-        voice = chatgpt_onyx
-    
-    text = text.replace("X:", "")
-    text = text.replace("O:", "")
-    
     try:
         with client.audio.speech.with_streaming_response.create(
             model="tts-1",
@@ -62,13 +55,23 @@ def generate_voice_with_text_using_chatgpt_api(text, output_filename):
     except Exception as e:
         print(f".Error: {e}")
 
-def create_voices(text_parts, is_chatgpt):
-    for i, part in enumerate(text_parts):
+def generate_voices_using_eleven_labs_api(text_parts, voice1):
+    for i, text in enumerate(text_parts):
         output_filename = f"youtube/output/voices/{i+1}.mp3"
-        if is_chatgpt:
-            generate_voice_with_text_using_chatgpt_api(part.strip(), output_filename)
-        else:
-            generate_voice_with_text_using_eleven_labs_api(part.strip(), output_filename)
+        generate_voice_using_eleven_labs_api(text.strip(), voice1, output_filename)
+
+def generate_voice_using_eleven_labs_api(text, voice1, output_path):
+    client = ElevenLabs(
+      api_key=api_key.get("eleven-labs-api-key"),
+    )
+
+    voice = client.text_to_speech.convert(
+        text=text,
+        voice_id=voice1,
+        model_id="eleven_multilingual_v2",
+        output_format="mp3_44100_128",
+    )
+    save(voice, output_path)
 
 def clean_voice_file(input_file_path, output_file_path):
     voice = AudioSegment.from_mp3(input_file_path)

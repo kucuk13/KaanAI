@@ -21,14 +21,14 @@ def create_story_video():
     text_content = file_manager.get_text_content_for_youtube(is_test, False)
     text_parts = text_content.split("***")
     image_manager.create_images(text_parts)
-    voice_manager.create_voices(text_parts, True)
+    voice_manager.generate_voices_using_chatgpt_api(text_parts, voice_manager.chatgpt_nova, voice_manager.chatgpt_onyx, voice_manager.chatgpt_fable, voice_manager.chatgpt_echo)
     video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0.5)
     video_manager.merge_video_parts("youtube/input/outro.mp4", videos_folder_path, output_file_path)
 
 def create_shorts():
     text_content = file_manager.get_text_content_for_youtube(is_test, True)
     text_parts = text_content.splitlines()
-    voice_manager.create_voices(text_parts, True)
+    voice_manager.generate_voices_using_chatgpt_api(text_parts, voice_manager.chatgpt_nova, voice_manager.chatgpt_onyx, voice_manager.chatgpt_fable, voice_manager.chatgpt_echo)
     file_manager.extract_zip(images_folder_path, "youtube/input/images.zip")
     video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0.5)
     video_manager.merge_video_parts("youtube/input/shorts_outro.mp4", videos_folder_path, output_file_path)
@@ -36,7 +36,7 @@ def create_shorts():
 def create_questions_and_answers_video():
     text_content = file_manager.get_text_content_for_youtube(is_test, True)
     text_parts = text_content.splitlines()
-    voice_manager.create_voices(text_parts, True)
+    voice_manager.generate_voices_using_chatgpt_api(text_parts, voice_manager.chatgpt_nova, voice_manager.chatgpt_onyx, voice_manager.chatgpt_fable, voice_manager.chatgpt_echo)
     #voice_manager.clean_voice_files()
     file_manager.extract_zip(images_folder_path, "youtube/input/images.zip")
     video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0.5)
