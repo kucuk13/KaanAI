@@ -32,3 +32,8 @@ CMD Commands
 (for /l %i in (1,1,200) do @echo file '%i.mp4') > file_list.txt
 ffmpeg -f concat -safe 0 -i file_list.txt -c:v libx264 -c:a aac -strict experimental -b:a 192k -preset fast output.mp4
 ffmpeg -i input.mp4 -filter_complex "[0:v]setpts=1.1111*PTS[v];[0:a]atempo=0.9[a]" -map "[v]" -map "[a]" -preset fast output_slow.mp4
+
+
+Hugging Face Models
+pip install torch
+pip install -U diffusers
