@@ -34,6 +34,20 @@ ffmpeg -f concat -safe 0 -i file_list.txt -c:v libx264 -c:a aac -strict experime
 ffmpeg -i input.mp4 -filter_complex "[0:v]setpts=1.1111*PTS[v];[0:a]atempo=0.9[a]" -map "[v]" -map "[a]" -preset fast output_slow.mp4
 
 
-Hugging Face Models
+Install pytorch
+--NVIDIA--
+Upgrade driver
+https://pytorch.org/get-started/previous-versions/ (latest CUDA)
+pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+--NOT NVIDIA--
 pip install torch
+--CONTROL--
+python -c "import torch; print(torch.__version__)"
+python -c "import torch; print(torch.version.cuda)"
+python -c "import torch; print(torch.cuda.is_available())" --it should return True
+nvidia-smi --If this cuda version isn't bigger, the driver should be updated.
+
+
+Hugging Face Models
 pip install -U diffusers
+
