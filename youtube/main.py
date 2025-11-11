@@ -43,8 +43,13 @@ def create_questions_and_answers_video():
     video_manager.merge_video_parts("youtube/input/questions_and_answers_outro.mp4", videos_folder_path, output_file_path)
     video_manager.change_video_speed(output_file_path, "youtube/output/video.mp4", 0.9)
 
+def create_one_minute_video():
+    voice_manager.split_voices("youtube/input/sentences.txt", "youtube/input/voices/merged_voice.mp3", "youtube/output/voices/")
+
 #main methods
-#data_manager.create_bulk_data()
-#create_story_video()
-#create_shorts()
-create_questions_and_answers_video()
+if __name__ == "__main__":
+    #data_manager.create_bulk_data()
+    #create_story_video()
+    #create_shorts()
+    #create_questions_and_answers_video()
+    create_one_minute_video()
