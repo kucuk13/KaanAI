@@ -9,6 +9,8 @@ pip install pydub
 pip install pandas
 pip install openpyxl
 pip install rarfile
+pip install stable-ts
+pip install pydub
 
 
 http://localhost:5000/
