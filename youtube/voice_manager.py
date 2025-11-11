@@ -141,7 +141,6 @@ def find_sentence_timing(target_words, segments):
 def split_voices(input_script_file, input_voice_file, output_path):
     sentences = load_sentences(input_script_file)
     os.makedirs(output_path, exist_ok=True)
-    output_prefix = "part_"
 
     print("Loading model...")
     model = load_model(whisper_model.small.value)
@@ -164,7 +163,7 @@ def split_voices(input_script_file, input_voice_file, output_path):
             print(f"Skipped (not found): {text}")
             continue
 
-        out_file = os.path.join(output_path, f"{output_prefix}{i}.mp3")
+        out_file = os.path.join(output_path, f"{i}.mp3")
         audio[int(start * 1000):int(end * 1000)].export(out_file, format="mp3")
         print(f"Saved: {out_file}")
 
