@@ -4,6 +4,10 @@ from constants import whisper_model
 import re
 import os
 
+def load_sentences(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        return [line.strip() for line in f.readlines() if line.strip()]
+
 def normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
@@ -27,7 +31,8 @@ def find_sentence_timing(target_words, segments):
 
     return None, None
 
-def split_voices(sentences, input_voice_file, output_path):
+def split_voices(input_script_file, input_voice_file, output_path):
+    sentences = load_sentences(input_script_file)
     os.makedirs(output_path, exist_ok=True)
     output_prefix = "part_"
 
@@ -60,15 +65,8 @@ def split_voices(sentences, input_voice_file, output_path):
 
 # Example usage
 if __name__ == "__main__":
-    sentences = [
-        "Why don't skeletons",
-        "fight each other?",
-        "They don't have",
-        "the guts"
-    ]
-
     split_voices(
-        sentences,
+        "youtube/input/sentences.txt",
         "youtube/input/voices/merged_voice.mp3",
         "youtube/output/voices/"
     )
