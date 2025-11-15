@@ -1,3 +1,4 @@
+from constants import elevenlabs_voices
 import image_manager
 import voice_manager
 import video_manager
@@ -44,7 +45,9 @@ def create_questions_and_answers_video():
     video_manager.change_video_speed(output_file_path, "youtube/output/video.mp4", 0.9)
 
 def create_one_minute_video():
-    voice_manager.split_voices("youtube/input/sentences.txt", "youtube/input/voices/merged_voice.mp3", "youtube/output/voices/")
+    text_content = file_manager.get_text_content_for_youtube(is_test, True)
+    text_parts = text_content.splitlines()
+    voice_manager.generate_voices_using_eleven_labs_api(text_parts, elevenlabs_voices.one_minute_voice.value)
     video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0)
     video_manager.merge_video_parts("youtube/input/one_minute_video.mp4", videos_folder_path, output_file_path)
 

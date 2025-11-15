@@ -5,3 +5,6 @@ class whisper_model(Enum):
     small = "small"
     medium = "medium"
     large = "large"
+
+class elevenlabs_voices(Enum):
+    one_minute_voice = "Tsq4B2xMyMOE0Y0w0Pdo"
