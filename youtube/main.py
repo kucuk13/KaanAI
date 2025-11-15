@@ -45,6 +45,8 @@ def create_questions_and_answers_video():
 
 def create_one_minute_video():
     voice_manager.split_voices("youtube/input/sentences.txt", "youtube/input/voices/merged_voice.mp3", "youtube/output/voices/")
+    video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0)
+    video_manager.merge_video_parts("youtube/input/one_minute_video.mp4", videos_folder_path, output_file_path)
 
 #main methods
 if __name__ == "__main__":

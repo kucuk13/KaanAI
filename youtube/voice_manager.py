@@ -3,6 +3,7 @@ from elevenlabs import save
 from openai import OpenAI
 from pydub import AudioSegment, silence
 from stable_whisper import load_model
+from difflib import SequenceMatcher
 from constants import whisper_model
 import sort_manager
 import re
@@ -118,23 +119,70 @@ def load_sentences(file_path):
 def normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
-def find_sentence_timing(target_words, segments):
-    """
-    Find the start and end timestamp for a sequence of words.
-    Returns (start_time, end_time) or (None, None) if not found.
-    """
-    target_len = len(target_words)
+def similarity(a, b):
+    return SequenceMatcher(None, a, b).ratio()
+
+def find_sentence_timing(target_text, segments, min_ratio=0.6):
+    target_words = [normalize(w) for w in target_text.split() if normalize(w)]
+    tlen = len(target_words)
+    if tlen == 0:
+        return None, None
+
+    best_start, best_end = None, None
+    best_score = 0.0
 
     for seg in segments:
-        words = seg.words
-        normalized_words = [normalize(w.word) for w in words]
+        words = getattr(seg, "words", None)
+        if not words:
+            continue
 
-        for i in range(len(normalized_words) - target_len + 1):
-            # match continuous sequence
-            if normalized_words[i:i+target_len] == target_words:
-                start_time = words[i].start
-                end_time = words[i + target_len - 1].end
-                return start_time, end_time
+        seg_words = [normalize(w.word) for w in words]
+        n = len(seg_words)
+        if n == 0:
+            continue
+
+        dp = [[0] * (n + 1) for _ in range(tlen + 1)]
+
+        for i in range(1, tlen + 1):
+            for j in range(1, n + 1):
+                if target_words[i - 1] == seg_words[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                else:
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+        lcs_len = dp[tlen][n]
+        ratio = lcs_len / tlen
+
+        if ratio < min_ratio or ratio <= best_score or lcs_len == 0:
+            continue
+
+        i, j = tlen, n
+        matched_indices = []
+
+        while i > 0 and j > 0:
+            if target_words[i - 1] == seg_words[j - 1]:
+                matched_indices.append(j - 1)
+                i -= 1
+                j -= 1
+            elif dp[i - 1][j] >= dp[i][j - 1]:
+                i -= 1
+            else:
+                j -= 1
+
+        if not matched_indices:
+            continue
+
+        first_idx = min(matched_indices)
+        last_idx = max(matched_indices)
+
+        start_time = words[first_idx].start
+        end_time = words[last_idx].end
+
+        best_start, best_end = start_time, end_time
+        best_score = ratio
+
+    if best_start is not None and best_end is not None:
+        return best_start, best_end
 
     return None, None
 
@@ -143,24 +191,22 @@ def split_voices(input_script_file, input_voice_file, output_path):
     os.makedirs(output_path, exist_ok=True)
 
     print("Loading model...")
-    model = load_model(whisper_model.small.value)
+    model = load_model(whisper_model.medium.value)
 
     print("Transcribing...")
     result = model.transcribe(input_voice_file, regroup=False)
 
     print("Processing timings...")
-    sentence_timings = []
-    for sentence in sentences:
-        normalized_words = [normalize(w) for w in sentence.split()]
-        start, end = find_sentence_timing(normalized_words, result.segments)
-        sentence_timings.append((sentence, start, end))
-
-    print("Extracting audio segments...")
     audio = AudioSegment.from_file(input_voice_file)
 
-    for i, (text, start, end) in enumerate(sentence_timings, start=1):
+    for i, sentence in enumerate(sentences, start=1):
+        if "questionable life decisions" in sentence.lower():
+            start, end = find_sentence_timing(sentence, result.segments, min_ratio=0.35)
+        else:
+            start, end = find_sentence_timing(sentence, result.segments)
+
         if start is None or end is None:
-            print(f"Skipped (not found): {text}")
+            print(f"Skipped (not found): {sentence}")
             continue
 
         out_file = os.path.join(output_path, f"{i}.mp3")

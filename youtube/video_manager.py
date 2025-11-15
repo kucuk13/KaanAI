@@ -24,12 +24,21 @@ def create_video_parts(input_folder_for_images, input_folder_for_voices, output_
             audio_path = os.path.join(input_folder_for_voices, audio_file)
             image_path = os.path.join(input_folder_for_images, image_file)
             audio_clip = AudioFileClip(audio_path)
-            silence = AudioArrayClip(np.zeros((int(44100 * silence_duration), 2)), fps=44100)
-            full_audio = concatenate_audioclips([audio_clip, silence])
-            image_clip = ImageClip(image_path, duration=audio_clip.duration + silence_duration)
+            if silence_duration > 0:
+                fps = 44100
+                samples = int(fps * silence_duration)
+                silence_audio = np.zeros((samples, 2), dtype=np.float32)
+                silence = AudioArrayClip(silence_audio, fps=fps)
+
+                full_audio = concatenate_audioclips([audio_clip, silence])
+                total_duration = audio_clip.duration + silence_duration
+            else:
+                full_audio = audio_clip
+                total_duration = audio_clip.duration
+            image_clip = ImageClip(image_path, duration=total_duration)
             video = image_clip.with_audio(full_audio)
-            output_video_path = os.path.join(output_video_path, f"{base_name}.mp4")
-            video.write_videofile(output_video_path, fps=24, codec="libx264")
+            output_path = os.path.join(output_video_path, f"{base_name}.mp4")
+            video.write_videofile(output_path, fps=24, codec="libx264")
 
 def merge_video_parts(outro_video_path, input_videos_path, output_video_path):
     concat_list_path = "files_to_concat.txt"
