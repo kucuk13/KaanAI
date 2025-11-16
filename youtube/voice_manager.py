@@ -6,6 +6,7 @@ from stable_whisper import load_model
 from difflib import SequenceMatcher
 from constants import whisper_model
 import sort_manager
+import file_manager
 import re
 import os
 import sys
@@ -112,23 +113,19 @@ def clean_voice_files():
         output_path = os.path.join(output_path_temp, f"{file_name}")
         clean_voice_file(input_path, output_path)
 
-def load_sentences(file_path):
-    with open(file_path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f.readlines() if line.strip()]
-
 def normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 def similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
-def find_sentence_timing(target_text, segments, min_ratio=0.6):
-    target_words = [normalize(w) for w in target_text.split() if normalize(w)]
+def find_sentence_start(sentence, segments, min_ratio=0.6):
+    target_words = [normalize(w) for w in sentence.split() if normalize(w)]
     tlen = len(target_words)
     if tlen == 0:
-        return None, None
+        return None
 
-    best_start, best_end = None, None
+    best_start = None
     best_score = 0.0
 
     for seg in segments:
@@ -150,15 +147,12 @@ def find_sentence_timing(target_text, segments, min_ratio=0.6):
                 else:
                     dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
 
-        lcs_len = dp[tlen][n]
-        ratio = lcs_len / tlen
-
-        if ratio < min_ratio or ratio <= best_score or lcs_len == 0:
+        score = dp[tlen][n] / tlen
+        if score < min_ratio or score <= best_score:
             continue
 
         i, j = tlen, n
         matched_indices = []
-
         while i > 0 and j > 0:
             if target_words[i - 1] == seg_words[j - 1]:
                 matched_indices.append(j - 1)
@@ -173,21 +167,14 @@ def find_sentence_timing(target_text, segments, min_ratio=0.6):
             continue
 
         first_idx = min(matched_indices)
-        last_idx = max(matched_indices)
+        best_start = words[first_idx].start
+        best_score = score
 
-        start_time = words[first_idx].start
-        end_time = words[last_idx].end
-
-        best_start, best_end = start_time, end_time
-        best_score = ratio
-
-    if best_start is not None and best_end is not None:
-        return best_start, best_end
-
-    return None, None
+    return best_start
 
 def split_voices(input_script_file, input_voice_file, output_path):
-    sentences = load_sentences(input_script_file)
+    sentences = file_manager.get_lines_from_text_file(input_script_file)
+    file_manager.is_audio_file(input_voice_file)
     os.makedirs(output_path, exist_ok=True)
 
     print("Loading model...")
@@ -196,21 +183,42 @@ def split_voices(input_script_file, input_voice_file, output_path):
     print("Transcribing...")
     result = model.transcribe(input_voice_file, regroup=False)
 
-    print("Processing timings...")
-    audio = AudioSegment.from_file(input_voice_file)
+    print("Finding start times...")
+    start_times = []
 
     for i, sentence in enumerate(sentences, start=1):
         if "questionable life decisions" in sentence.lower():
-            start, end = find_sentence_timing(sentence, result.segments, min_ratio=0.35)
+            s = find_sentence_start(sentence, result.segments, min_ratio=0.35)
         else:
-            start, end = find_sentence_timing(sentence, result.segments)
+            s = find_sentence_start(sentence, result.segments)
 
-        if start is None or end is None:
-            print(f"Skipped (not found): {sentence}")
+        if s is None:
+            print(f"NOT FOUND: {sentence}")
             continue
 
-        out_file = os.path.join(output_path, f"{i}.mp3")
-        audio[int(start * 1000):int(end * 1000)].export(out_file, format="mp3")
+        start_times.append(s)
+
+    if len(start_times) != len(sentences):
+        print("Warning: Some timings missing! Skipping missing ones.")
+
+    start_times = sorted(start_times)
+
+    intersection_times = []
+    for i in range(len(start_times) - 1):
+        mid = (start_times[i] + start_times[i + 1]) / 2
+        intersection_times.append(mid)
+
+    cut_points = [0.0] + intersection_times + [start_times[-1] + 10000]
+
+    print("Cutting audio...")
+    audio = AudioSegment.from_file(input_voice_file)
+
+    for i in range(len(sentences)):
+        start_ms = int(cut_points[i] * 1000)
+        end_ms = int(cut_points[i + 1] * 1000)
+
+        out_file = os.path.join(output_path, f"{i+1}.mp3")
+        audio[start_ms:end_ms].export(out_file, format="mp3")
         print(f"Saved: {out_file}")
 
     print("Done.")

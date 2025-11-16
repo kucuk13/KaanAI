@@ -5,10 +5,10 @@ import video_manager
 import file_manager
 
 #user inputs
-is_test = True
-images_folder_path = "youtube/input/images"
-voices_folder_path = "youtube/input/voices"
-videos_folder_path = "youtube/input/videos"
+is_test = False
+images_folder_path = "youtube/output/images"
+voices_folder_path = "youtube/output/voices"
+videos_folder_path = "youtube/output/videos"
 output_file_path = "youtube/output/output.mp4"
 
 #intermediate operations
@@ -45,11 +45,9 @@ def create_questions_and_answers_video():
     video_manager.change_video_speed(output_file_path, "youtube/output/video.mp4", 0.9)
 
 def create_one_minute_video():
-    text_content = file_manager.get_text_content_for_youtube(is_test, True)
-    text_parts = text_content.splitlines()
-    voice_manager.generate_voices_using_eleven_labs_api(text_parts, elevenlabs_voices.one_minute_voice.value)
+    voice_manager.split_voices("youtube/input/sentences.txt", "youtube/input/voices/speech.mp3", voices_folder_path)
     video_manager.create_video_parts(images_folder_path, voices_folder_path, videos_folder_path, 0)
-    video_manager.merge_video_parts("youtube/input/one_minute_video.mp4", videos_folder_path, output_file_path)
+    video_manager.merge_video_parts("youtube/input/questions_and_answers_outro.mp4", videos_folder_path, output_file_path)
 
 #main methods
 if __name__ == "__main__":
