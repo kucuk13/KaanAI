@@ -1,8 +1,8 @@
 __pycache__/
-api_key.txt
-video_script.txt
-files_to_concat.txt
+*.env
 *.png
 *.mp3
 *.mp4
 *.xlsx
+video_script.txt
+files_to_concat.txt
