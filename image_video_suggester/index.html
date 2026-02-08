@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pexels AI Görsel ve Video Önericisi</title>
+    <title>Fotoğraf ve Video Önericisi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,6 +53,10 @@
     <h1>Fotoğraf ve Video Önericisi</h1>
     <form id="searchForm">
         <input type="text" id="query" placeholder="Arama metni" required />
+        <select id="source" style="margin-left: 8px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="pexels">Pexels</option>
+            <option value="pixabay">Pixabay</option>
+        </select>
         <button type="submit">Ara</button>
     </form>
     <div id="results"></div>
@@ -65,12 +69,13 @@
             }
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
-            // Gösterge (loading) metni
             const loading = document.createElement('p');
             loading.textContent = 'Sonuçlar getiriliyor...';
             resultsDiv.appendChild(loading);
-            // Pexels API verilerini getiren yerel sunucuya istek gönder
-            fetch('http://localhost:8000/search?query=' + encodeURIComponent(query))
+            const sourceSelect = document.getElementById('source');
+            const selectedSource = sourceSelect ? sourceSelect.value : 'pexels';
+            const endpoint = selectedSource === 'pixabay' ? 'searchByPixabay' : 'searchByPexels';
+            fetch('http://localhost:8000/' + endpoint + '?query=' + encodeURIComponent(query))
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Sunucu yanıtı hatası');
@@ -85,7 +90,6 @@
                         resultsDiv.appendChild(noData);
                         return;
                     }
-                    // Fotoğraf bölümü
                     if (data.photos && data.photos.length > 0) {
                         const photoSection = document.createElement('div');
                         photoSection.className = 'media-section photo-container';
@@ -100,7 +104,6 @@
                         });
                         resultsDiv.appendChild(photoSection);
                     }
-                    // Video bölümü
                     if (data.videos && data.videos.length > 0) {
                         const videoSection = document.createElement('div');
                         videoSection.className = 'media-section video-container';

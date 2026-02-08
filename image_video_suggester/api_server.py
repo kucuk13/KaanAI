@@ -27,12 +27,25 @@ Pexels API and return three photos and three videos.
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
-from dotenv import load_dotenv
+# Attempt to import dotenv.  If unavailable, define a no‑op replacement.  This
+# allows the server to run without requiring the external package.
+try:
+    from dotenv import load_dotenv  # type: ignore
+except ImportError:
+    def load_dotenv() -> None:  # type: ignore
+        return None
 import json
 import os
 import sys
 
-from suggester_using_by_pexels_api import fetch_suggestions
+from suggester_using_by_pexels_api import fetch_suggestions as fetch_from_pexels
+# Import the Pixabay suggester.  This allows serving results from a
+# different provider without changing the front‑end logic.
+try:
+    from suggester_using_by_pixabay_api import fetch_suggestions as fetch_from_pixabay
+except ImportError:
+    # If the Pixabay module is missing for any reason, define a placeholder
+    fetch_from_pixabay = None  # type: ignore
 
 APPLICATION_JSON_HEADER = "application/json"
 
@@ -52,7 +65,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         """Handle GET requests.  Only the /search endpoint is supported."""
         parsed = urlparse(self.path)
-        if parsed.path != "/search":
+        if parsed.path not in {"/searchByPexels", "/searchByPixabay"}:
             self.send_response(404)
             self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -76,18 +89,35 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"error": "Empty query parameter"}).encode())
             return
-        api_key = os.environ.get("PEXELS_API_KEY")
+        # Choose the provider based on the request path
+        if parsed.path == "/searchByPexels":
+            provider_name = "PEXELS"
+            api_key = os.environ.get("PEXELS_API_KEY")
+            fetch_fn = fetch_from_pexels
+        else:
+            provider_name = "PIXABAY"
+            api_key = os.environ.get("PIXABAY_API_KEY")
+            fetch_fn = fetch_from_pixabay
         if not api_key:
             self.send_response(500)
             self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({
-                "error": "PEXELS_API_KEY environment variable not set"
+                "error": f"{provider_name}_API_KEY environment variable not set"
+            }).encode())
+            return
+        if fetch_fn is None:
+            self.send_response(500)
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "error": "Pixabay functionality is unavailable"
             }).encode())
             return
         try:
-            photos, videos = fetch_suggestions(search_query, api_key)
+            photos, videos = fetch_fn(search_query, api_key)
         except Exception as exc:
             # Catch any error from the API request
             self.send_response(500)
