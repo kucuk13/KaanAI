@@ -40,6 +40,7 @@ import sys
 
 from suggester_using_by_pexels_api import fetch_suggestions as fetch_from_pexels
 from suggester_using_by_web_search import fetch_suggestions as fetch_from_web
+from suggester_using_by_ai_robot_generator import fetch_suggestions as fetch_from_ai_robot_generator
 # Import the Pixabay suggester.  This allows serving results from a
 # different provider without changing the front‑end logic.
 try:
@@ -66,7 +67,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         """Handle GET requests.  Only the /search endpoint is supported."""
         parsed = urlparse(self.path)
-        if parsed.path not in {"/searchByPexels", "/searchByPixabay", "/searchByWeb"}:
+        if parsed.path not in {"/searchByPexels", "/searchByPixabay", "/searchByWeb", "/createRobot"}:
             self.send_response(404)
             self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
@@ -97,6 +98,9 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
             fetch_fn = fetch_from_pexels
         elif parsed.path == "/searchByWeb":
             fetch_fn = fetch_from_web
+            api_key = "NO_KEY"
+        elif parsed.path == "/createRobot":
+            fetch_fn = fetch_from_ai_robot_generator
             api_key = "NO_KEY"
         else:
             provider_name = "PIXABAY"
