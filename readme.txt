@@ -3,6 +3,7 @@ CHAT_GPT_API_KEY=***
 ELEVENLABS_API_KEY=***
 HUGGINGFACE_API_KEY=***
 PEXELS_API_KEY=***
+PIXABAY_API_KEY=***
 
 pip install openai
 pip install Flask
@@ -17,6 +18,7 @@ pip install openpyxl
 pip install rarfile
 pip install stable-ts
 pip install pydub
+pip install bs4
 
 
 http://localhost:5000/

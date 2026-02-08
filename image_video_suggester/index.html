@@ -56,6 +56,8 @@
         <select id="source" style="margin-left: 8px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
             <option value="pexels">Pexels</option>
             <option value="pixabay">Pixabay</option>
+            <option value="web">Web Arama</option>
+            <!-- Stock:pexels,pixabay & web:bing&duckduckgo & generator: -->
         </select>
         <button type="submit">Ara</button>
     </form>
@@ -74,7 +76,10 @@
             resultsDiv.appendChild(loading);
             const sourceSelect = document.getElementById('source');
             const selectedSource = sourceSelect ? sourceSelect.value : 'pexels';
-            const endpoint = selectedSource === 'pixabay' ? 'searchByPixabay' : 'searchByPexels';
+            const endpoint =
+                selectedSource === 'pixabay' ? 'searchByPixabay' :
+                    selectedSource === 'web' ? 'searchByWeb' :
+                        'searchByPexels';
             fetch('http://localhost:8000/' + endpoint + '?query=' + encodeURIComponent(query))
                 .then(response => {
                     if (!response.ok) {
