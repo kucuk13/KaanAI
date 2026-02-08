@@ -1,5 +1,5 @@
 """
-A simple HTTP server exposing the `ai_image_video_suggester` functionality.
+A simple HTTP server exposing the `suggester_using_by_pexels_api` functionality.
 
 This server is intended for local use. It listens on `localhost:8000` and
 provides a single endpoint `/search` that accepts a `query` parameter via the
@@ -32,7 +32,9 @@ import json
 import os
 import sys
 
-from ai_image_video_suggester import fetch_suggestions
+from suggester_using_by_pexels_api import fetch_suggestions
+
+APPLICATION_JSON_HEADER = "application/json"
 
 
 class PexelsRequestHandler(BaseHTTPRequestHandler):
@@ -52,7 +54,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path != "/search":
             self.send_response(404)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode())
@@ -61,7 +63,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
         search_query_list = query_params.get("query", [])
         if not search_query_list:
             self.send_response(400)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({"error": "Missing query parameter"}).encode())
@@ -69,7 +71,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
         search_query = search_query_list[0].strip()
         if not search_query:
             self.send_response(400)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({"error": "Empty query parameter"}).encode())
@@ -77,7 +79,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
         api_key = os.environ.get("PEXELS_API_KEY")
         if not api_key:
             self.send_response(500)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({
@@ -89,7 +91,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
         except Exception as exc:
             # Catch any error from the API request
             self.send_response(500)
-            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Type", APPLICATION_JSON_HEADER)
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(json.dumps({"error": str(exc)}).encode())
@@ -99,7 +101,7 @@ class PexelsRequestHandler(BaseHTTPRequestHandler):
             "videos": videos
         }
         self.send_response(200)
-        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Type", APPLICATION_JSON_HEADER)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(json.dumps(result).encode())

@@ -1,5 +1,5 @@
 """
-ai_image_video_suggester.py
+suggester_using_by_pexels_api.py
 ----------------------------------
 
 This script implements a simple command‑line application that takes a text query
@@ -42,6 +42,7 @@ from dotenv import load_dotenv
 
 import requests
 
+search_count: int = 4
 
 class PexelsClient:
     """Minimal client for searching photos and videos on Pexels.
@@ -61,7 +62,7 @@ class PexelsClient:
             raise ValueError("A valid Pexels API key must be provided.")
         self.headers = {"Authorization": api_key}
 
-    def search_photos(self, query: str, per_page: int = 3) -> List[Dict[str, Any]]:
+    def search_photos(self, query: str, per_page: int = search_count) -> List[Dict[str, Any]]:
         """Search Pexels for photos matching the query.
 
         Args:
@@ -94,7 +95,7 @@ class PexelsClient:
             })
         return photos
 
-    def search_videos(self, query: str, per_page: int = 3) -> List[Dict[str, Any]]:
+    def search_videos(self, query: str, per_page: int = search_count) -> List[Dict[str, Any]]:
         """Search Pexels for videos matching the query.
 
         Args:
@@ -140,7 +141,7 @@ class PexelsClient:
         return videos
 
 
-def fetch_suggestions(query: str, api_key: str, per_page: int = 3) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def fetch_suggestions(query: str, api_key: str, per_page: int = search_count) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Return photo and video suggestions for a query using the Pexels API.
 
     Args:
