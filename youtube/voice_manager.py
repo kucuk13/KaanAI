@@ -10,6 +10,9 @@ import file_manager
 import re
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import api_key
@@ -46,7 +49,7 @@ def generate_voices_using_chatgpt_api(text_parts, voice1, voice2, voice3, voice4
             generate_voice_using_chatgpt_api(text.strip(), voice4, output_filename)
 
 def generate_voice_using_chatgpt_api(text, voice, output_filename):
-    client = OpenAI(api_key = api_key.get("chat-gpt-api-key"))
+    client = OpenAI(api_key = os.getenv("CHAT_GPT_API_KEY"))
     try:
         with client.audio.speech.with_streaming_response.create(
             model="tts-1",
@@ -67,7 +70,7 @@ def generate_voices_using_eleven_labs_api(text_parts, voice1):
 
 def generate_voice_using_eleven_labs_api(text, voice1, output_path):
     client = ElevenLabs(
-      api_key=api_key.get("eleven-labs-api-key"),
+      api_key=os.getenv("ELEVENLABS_API_KEY"),
     )
 
     voice = client.text_to_speech.convert(
@@ -114,111 +117,101 @@ def clean_voice_files():
         clean_voice_file(input_path, output_path)
 
 def normalize(text: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "", text.lower())
+    txt = re.sub(r"[^\w\sşçöüğİı]", "", txt)
+    txt = re.sub(r"\s+", " ", txt)
+    txt = re.sub(r"[^a-z0-9]+", "", text.lower())
+    return txt.strip()
 
 def similarity(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
-def find_sentence_start(sentence, segments, min_ratio=0.6):
-    target_words = [normalize(w) for w in sentence.split() if normalize(w)]
-    tlen = len(target_words)
-    if tlen == 0:
-        return None
-
-    best_start = None
-    best_score = 0.0
-
+def get_words(segments):
+    words = []
     for seg in segments:
-        words = getattr(seg, "words", None)
-        if not words:
-            continue
+        if "words" in seg and seg["words"] is not None:
+            for w in seg["words"]:
+                words.append(w)
+    return words
 
-        seg_words = [normalize(w.word) for w in words]
-        n = len(seg_words)
-        if n == 0:
-            continue
+def find_last_word_end(sentence, words):
+    sent = normalize(sentence)
+    sent_tokens = sent.split()
 
-        dp = [[0] * (n + 1) for _ in range(tlen + 1)]
+    last_time = None
+    word_idx = 0
 
-        for i in range(1, tlen + 1):
-            for j in range(1, n + 1):
-                if target_words[i - 1] == seg_words[j - 1]:
-                    dp[i][j] = dp[i - 1][j - 1] + 1
-                else:
-                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    for w in words:
+        w_norm = normalize(w["word"])
 
-        score = dp[tlen][n] / tlen
-        if score < min_ratio or score <= best_score:
-            continue
+        if w_norm == sent_tokens[word_idx]:
+            last_time = w["end"]
+            word_idx += 1
 
-        i, j = tlen, n
-        matched_indices = []
-        while i > 0 and j > 0:
-            if target_words[i - 1] == seg_words[j - 1]:
-                matched_indices.append(j - 1)
-                i -= 1
-                j -= 1
-            elif dp[i - 1][j] >= dp[i][j - 1]:
-                i -= 1
-            else:
-                j -= 1
+            if word_idx == len(sent_tokens):
+                break
 
-        if not matched_indices:
-            continue
-
-        first_idx = min(matched_indices)
-        best_start = words[first_idx].start
-        best_score = score
-
-    return best_start
+    return last_time
 
 def split_voices(input_script_file, input_voice_file, output_path):
-    sentences = file_manager.get_lines_from_text_file(input_script_file)
-    file_manager.is_audio_file(input_voice_file)
+    with open(input_script_file, "r", encoding="utf-8") as f:
+        sentences = [s.strip() for s in f if s.strip()]
+
     os.makedirs(output_path, exist_ok=True)
 
-    print("Loading model...")
-    model = load_model(whisper_model.medium.value)
+    print("Loading Whisper...")
+    model = load_model("medium")
 
     print("Transcribing...")
-    result = model.transcribe(input_voice_file, regroup=False)
+    result = model.transcribe(
+        input_voice_file,
+        word_timestamps=True,
+        regroup=False
+    )
 
-    print("Finding start times...")
-    start_times = []
+    words = []
+    for seg in result.segments:
+        if seg.words:
+            words.extend(seg["words"])
 
-    for i, sentence in enumerate(sentences, start=1):
-        if "questionable life decisions" in sentence.lower():
-            s = find_sentence_start(sentence, result.segments, min_ratio=0.35)
-        else:
-            s = find_sentence_start(sentence, result.segments)
+    def norm(t):
+        t = t.lower()
+        t = re.sub(r"[^\w\sçğıöüşİı]", "", t)
+        return re.sub(r"\s+", " ", t).strip()
 
-        if s is None:
-            print(f"NOT FOUND: {sentence}")
-            continue
+    cut_points = []
+    for sent in sentences:
+        tokens = norm(sent).split()
+        idx = 0
+        last_time = None
 
-        start_times.append(s)
+        for w in words:
+            if norm(w["word"]) == tokens[idx]:
+                last_time = w["end"]
+                idx += 1
+                if idx == len(tokens):
+                    break
 
-    if len(start_times) != len(sentences):
-        print("Warning: Some timings missing! Skipping missing ones.")
+        if last_time is None:
+            print("NOT FOUND:", sent)
+            last_time = (cut_points[-1] + 0.3) if cut_points else 0.3
 
-    start_times = sorted(start_times)
+        cut_points.append(last_time)
 
-    intersection_times = []
-    for i in range(len(start_times) - 1):
-        mid = (start_times[i] + start_times[i + 1]) / 2
-        intersection_times.append(mid)
-
-    cut_points = [0.0] + intersection_times + [start_times[-1] + 10000]
+    audio = AudioSegment.from_file(input_voice_file)
+    cut_points[-1] = audio.duration_seconds
 
     print("Cutting audio...")
-    audio = AudioSegment.from_file(input_voice_file)
 
-    for i in range(len(sentences)):
-        start_ms = int(cut_points[i] * 1000)
-        end_ms = int(cut_points[i + 1] * 1000)
+    start = 0.0
+    for i, end in enumerate(cut_points):
+        s = int(start * 1000)
+        e = int(end * 1000)
+        if e <= s:
+            e = s + 150
 
-        out_file = os.path.join(output_path, f"{i+1}.mp3")
-        audio[start_ms:end_ms].export(out_file, format="mp3")
-        print(f"Saved: {out_file}")
+        out = os.path.join(output_path, f"{i+1}.mp3")
+        audio[s:e].export(out, format="mp3")
+        print("Saved:", out)
+        start = end
 
     print("Done.")

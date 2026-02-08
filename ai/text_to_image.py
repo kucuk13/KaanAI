@@ -20,7 +20,7 @@ if you don't have a Nvidia GPU, use CPU (slower)
 """
 def generate_image(prompt: str, 
                    use_gpu: bool = True, 
-                   model: StableDiffusionModels = StableDiffusionModels.LEGACY_SD_V1_5, 
+                   model: StableDiffusionModels = StableDiffusionModels.SDXL_BASE, 
                    cache_dir: str = "D:/.cache"):
     
     dtype = torch.float16 if use_gpu and torch.cuda.is_available() else torch.float32

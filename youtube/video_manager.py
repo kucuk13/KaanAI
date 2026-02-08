@@ -70,21 +70,51 @@ def merge_video_parts(outro_video_path, input_videos_path, output_video_path):
     
     subprocess.run(cmd, check=True)
 
+def _has_audio(input_video_path: str) -> bool:
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-select_streams", "a:0",
+        "-show_entries", "stream=codec_type",
+        "-of", "csv=p=0",
+        input_video_path
+    ]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    return r.returncode == 0 and r.stdout.strip() != ""
+
 def change_video_speed(input_video_path, output_video_path, speed_factor):
     if not os.path.exists(input_video_path):
         raise FileNotFoundError(f"Input video not found: {input_video_path}")
-    
-    setpts_value = str(round(1 / speed_factor, 4))
-    atempo_value = str(speed_factor)
-    
-    cmd = [
-        "ffmpeg",
-        "-i", input_video_path,
-        "-filter_complex", f"[0:v]setpts={setpts_value}*PTS[v];[0:a]atempo={atempo_value}[a]",
-        "-map", "[v]",
-        "-map", "[a]",
-        "-preset", "fast",
-        output_video_path
-    ]
-    
+    if speed_factor <= 0:
+        raise ValueError("speed_factor must be > 0")
+
+    # Video: setpts = 1/speed
+    setpts_value = round(1 / speed_factor, 4)
+
+    # ffmpeg'in atempo aralığı 0.5 - 2.0 (gerekirse zincirlemek gerekir)
+    atempo_value = speed_factor
+
+    has_audio = _has_audio(input_video_path)
+
+    if has_audio:
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", input_video_path,
+            "-filter_complex", f"[0:v]setpts={setpts_value}*PTS[v];[0:a]atempo={atempo_value}[a]",
+            "-map", "[v]",
+            "-map", "[a]",
+            "-preset", "fast",
+            output_video_path
+        ]
+    else:
+        # Audio yoksa: sadece video filtrele, audio map etme
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", input_video_path,
+            "-filter:v", f"setpts={setpts_value}*PTS",
+            "-an",
+            "-preset", "fast",
+            output_video_path
+        ]
+
     subprocess.run(cmd, check=True)
+
