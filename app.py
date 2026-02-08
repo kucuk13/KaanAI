@@ -1,7 +1,9 @@
+import os
 from openai import OpenAI
-import api_key
+from dotenv import load_dotenv
 
-client = OpenAI(api_key = api_key.get("chat-gpt-api-key"))
+load_dotenv()
+client = OpenAI(api_key = os.getenv("CHAT_GPT_API_KEY"))
 conversation = []
 
 while True:
