@@ -1,3 +1,9 @@
+# Sample .env file
+CHAT_GPT_API_KEY=***
+ELEVENLABS_API_KEY=***
+HUGGINGFACE_API_KEY=***
+PEXELS_API_KEY=***
+
 pip install openai
 pip install Flask
 pip install PyGame
@@ -25,7 +31,7 @@ response = client.chat.completions.create(
   ]
 )
 
-git rm --cached api_key.txt
+git rm --cached .env
 git add .gitignore
 git commit -m "Ignore api_key.txt file"
 
