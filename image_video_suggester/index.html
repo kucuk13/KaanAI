@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pexels AI Görsel ve Video Önericisi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 12px;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .media-section {
+            margin-top: 20px;
+        }
+        .media-section h2 {
+            margin-bottom: 10px;
+            color: #34495e;
+        }
+        .photo-container img {
+            max-width: 400px;
+            margin: 5px;
+            border-radius: 4px;
+        }
+        .video-container video {
+            width: 400px;
+            margin: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fotoğraf ve Video Önericisi</h1>
+    <form id="searchForm">
+        <input type="text" id="query" placeholder="Arama metni" required />
+        <button type="submit">Ara</button>
+    </form>
+    <div id="results"></div>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const query = document.getElementById('query').value.trim();
+            if (!query) {
+                return;
+            }
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            // Gösterge (loading) metni
+            const loading = document.createElement('p');
+            loading.textContent = 'Sonuçlar getiriliyor...';
+            resultsDiv.appendChild(loading);
+            // Pexels API verilerini getiren yerel sunucuya istek gönder
+            fetch('http://localhost:8000/search?query=' + encodeURIComponent(query))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Sunucu yanıtı hatası');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    resultsDiv.innerHTML = '';
+                    if (!data || (!data.photos && !data.videos)) {
+                        const noData = document.createElement('p');
+                        noData.textContent = 'Sonuç alınamadı. Sunucu çalışıyor mu ve API anahtarınız tanımlı mı?';
+                        resultsDiv.appendChild(noData);
+                        return;
+                    }
+                    // Fotoğraf bölümü
+                    if (data.photos && data.photos.length > 0) {
+                        const photoSection = document.createElement('div');
+                        photoSection.className = 'media-section photo-container';
+                        const photoTitle = document.createElement('h2');
+                        photoTitle.textContent = 'Fotoğraflar';
+                        photoSection.appendChild(photoTitle);
+                        data.photos.forEach(photo => {
+                            const img = document.createElement('img');
+                            img.src = photo.image_url;
+                            img.alt = photo.photographer || query;
+                            photoSection.appendChild(img);
+                        });
+                        resultsDiv.appendChild(photoSection);
+                    }
+                    // Video bölümü
+                    if (data.videos && data.videos.length > 0) {
+                        const videoSection = document.createElement('div');
+                        videoSection.className = 'media-section video-container';
+                        const videoTitle = document.createElement('h2');
+                        videoTitle.textContent = 'Videolar';
+                        videoSection.appendChild(videoTitle);
+                        data.videos.forEach(videoObj => {
+                            const video = document.createElement('video');
+                            video.src = videoObj.video_url;
+                            video.controls = true;
+                            videoSection.appendChild(video);
+                        });
+                        resultsDiv.appendChild(videoSection);
+                    }
+                    if ((!data.photos || data.photos.length === 0) && (!data.videos || data.videos.length === 0)) {
+                        const noResults = document.createElement('p');
+                        noResults.textContent = 'Sonuç bulunamadı.';
+                        resultsDiv.appendChild(noResults);
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    resultsDiv.innerHTML = '';
+                    const err = document.createElement('p');
+                    err.textContent = 'Bir hata oluştu: ' + error.message;
+                    resultsDiv.appendChild(err);
+                });
+        });
+    </script>
+</body>
+</html>
