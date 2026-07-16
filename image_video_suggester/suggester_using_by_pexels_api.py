@@ -42,7 +42,7 @@ from dotenv import load_dotenv
 
 import requests
 
-search_count: int = 4
+from config import DEFAULT_RESULT_COUNT as search_count
 
 class PexelsClient:
     """Minimal client for searching photos and videos on Pexels.

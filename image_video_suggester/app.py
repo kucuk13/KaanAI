@@ -56,6 +56,9 @@ except ImportError:
     fetch_from_ai_robot_generator = None
 
 
+from config import DEFAULT_RESULT_COUNT, MIN_RESULT_COUNT, MAX_RESULT_COUNT
+
+
 BASE_DIR = Path(__file__).resolve().parent
 
 APPLICATION_JSON_HEADER = "application/json; charset=utf-8"
@@ -105,15 +108,44 @@ def make_json_safe(value):
     return str(value)
 
 
-def call_fetch_function(fetch_function, query, api_key=None):
+def parse_result_count(raw_values):
+    """
+    Arayüzden gelen "count" parametresini doğrular.
+
+    Geçersiz veya eksikse ``None`` döner; bu durumda sağlayıcılar kendi
+    varsayılan değerini (``config.DEFAULT_RESULT_COUNT``) kullanır.
+    """
+
+    if not raw_values:
+        return None
+
+    try:
+        value = int(raw_values[0])
+    except ValueError:
+        return None
+
+    if value < MIN_RESULT_COUNT:
+        return MIN_RESULT_COUNT
+
+    if value > MAX_RESULT_COUNT:
+        return MAX_RESULT_COUNT
+
+    return value
+
+
+def call_fetch_function(fetch_function, query, api_key=None, result_count=None):
     """
     fetch_suggestions fonksiyonunun bir veya iki parametre almasını destekler.
+    Ayrıca sağlayıcı ``per_page`` parametresini kabul ediyorsa, kullanıcının
+    arayüzden girdiği ``result_count`` değerini de iletir.
 
     Desteklenen örnekler:
 
         fetch_suggestions(query)
 
         fetch_suggestions(query, api_key)
+
+        fetch_suggestions(query, api_key, per_page=result_count)
     """
 
     if fetch_function is None:
@@ -121,10 +153,11 @@ def call_fetch_function(fetch_function, query, api_key=None):
 
     try:
         signature = inspect.signature(fetch_function)
+        parameters = signature.parameters
 
         positional_parameters = [
             parameter
-            for parameter in signature.parameters.values()
+            for parameter in parameters.values()
             if parameter.kind in {
                 inspect.Parameter.POSITIONAL_ONLY,
                 inspect.Parameter.POSITIONAL_OR_KEYWORD
@@ -133,13 +166,24 @@ def call_fetch_function(fetch_function, query, api_key=None):
 
         accepts_varargs = any(
             parameter.kind == inspect.Parameter.VAR_POSITIONAL
-            for parameter in signature.parameters.values()
+            for parameter in parameters.values()
         )
 
-        if accepts_varargs or len(positional_parameters) >= 2:
-            return fetch_function(query, api_key)
+        accepts_varkwargs = any(
+            parameter.kind == inspect.Parameter.VAR_KEYWORD
+            for parameter in parameters.values()
+        )
 
-        return fetch_function(query)
+        supports_result_count = accepts_varkwargs or "per_page" in parameters
+
+        extra_kwargs = {}
+        if result_count is not None and supports_result_count:
+            extra_kwargs["per_page"] = result_count
+
+        if accepts_varargs or len(positional_parameters) >= 2:
+            return fetch_function(query, api_key, **extra_kwargs)
+
+        return fetch_function(query, **extra_kwargs)
 
     except ValueError:
         # Bazı fonksiyonlarda signature okunamayabilir.
@@ -400,6 +444,10 @@ class SuggestionRequestHandler(BaseHTTPRequestHandler):
             )
             return
 
+        result_count = parse_result_count(
+            query_parameters.get("count", [])
+        )
+
         provider_name = ""
         fetch_function = None
         api_key = None
@@ -458,7 +506,8 @@ class SuggestionRequestHandler(BaseHTTPRequestHandler):
             raw_result = call_fetch_function(
                 fetch_function=fetch_function,
                 query=search_query,
-                api_key=api_key
+                api_key=api_key,
+                result_count=result_count
             )
 
             result = normalize_fetch_result(raw_result)

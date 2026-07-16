@@ -47,9 +47,7 @@ except ImportError:
         return None
 import requests
 
-# Number of results per media type.  Pixabay accepts between 3 and 200
-# items per page【545351800694730†L190-L195】.
-search_count: int = 4
+from config import DEFAULT_RESULT_COUNT as search_count
 
 
 class PixabayClient:

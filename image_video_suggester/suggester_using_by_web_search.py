@@ -27,6 +27,8 @@ from typing import Any, Dict, List, Tuple
 import requests
 from bs4 import BeautifulSoup
 
+from config import DEFAULT_RESULT_COUNT as DEFAULT_COUNT
+
 
 # Base URLs for web search providers.  The suggester will try DuckDuckGo first
 # and fall back to Bing or Google if DuckDuckGo returns no results or is
@@ -38,7 +40,6 @@ from bs4 import BeautifulSoup
 DUCKDUCKGO_URL = "https://duckduckgo.com/html/"
 BING_SEARCH_URL = "https://www.bing.com/search"
 GOOGLE_SEARCH_URL = "https://www.google.com/search"
-DEFAULT_COUNT = 4
 DEFAULT_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "

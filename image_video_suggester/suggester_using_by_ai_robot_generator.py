@@ -30,10 +30,7 @@ from __future__ import annotations
 import urllib.parse
 from typing import Any, Dict, List, Tuple
 
-
-# Default number of AI images to return per query.  Keeping this low helps
-# ensure the UI remains responsive even when multiple images are loaded.
-AI_IMAGE_COUNT: int = 4
+from config import DEFAULT_RESULT_COUNT as AI_IMAGE_COUNT
 
 
 def _robohash_url(prompt: str, variant: int) -> str:
