@@ -1,144 +1,579 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Fotoğraf ve Video Önericisi</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
+        * {
+            box-sizing: border-box;
         }
-        h1 {
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
             color: #2c3e50;
         }
-        input[type="text"] {
-            padding: 8px;
-            width: 250px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+
+        .page-container {
+            width: min(1200px, 92%);
+            margin: 0 auto;
+            padding: 40px 0;
         }
-        button {
-            padding: 8px 12px;
-            border: none;
-            background-color: #3498db;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .media-section {
-            margin-top: 20px;
-        }
-        .media-section h2 {
+
+        .header h1 {
             margin-bottom: 10px;
-            color: #34495e;
+            font-size: 36px;
         }
-        .photo-container img {
-            max-width: 400px;
-            margin: 5px;
-            border-radius: 4px;
+
+        .header p {
+            margin: 0;
+            color: #667085;
+            font-size: 17px;
         }
-        .video-container video {
-            width: 400px;
-            margin: 5px;
-            border-radius: 4px;
+
+        .search-panel {
+            background-color: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        .source-title {
+            margin-top: 24px;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .source-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .source-button {
+            min-height: 55px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .source-button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .source-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
+        }
+
+        .pexels-button {
+            background-color: #05a081;
+        }
+
+        .pixabay-button {
+            background-color: #2d77ff;
+        }
+
+        .web-button {
+            background-color: #8e44ad;
+        }
+
+        .robot-button {
+            background-color: #e67e22;
+        }
+
+        .status-container {
+            margin-top: 24px;
+        }
+
+        .status-message {
+            margin: 0;
+            padding: 14px 16px;
+            border-radius: 8px;
+        }
+
+        .loading-message {
+            background-color: #eef6ff;
+            color: #175cd3;
+        }
+
+        .error-message {
+            background-color: #fef3f2;
+            color: #b42318;
+        }
+
+        .info-message {
+            background-color: #f2f4f7;
+            color: #475467;
+        }
+
+        .results-container {
+            margin-top: 30px;
+        }
+
+        .media-section {
+            margin-top: 28px;
+        }
+
+        .media-section h2 {
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #d0d5dd;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .photo-card,
+        .video-card {
+            overflow: hidden;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .photo-card img {
+            display: block;
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+        }
+
+        .photo-info {
+            padding: 12px;
+            font-size: 14px;
+            color: #667085;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .video-card video {
+            display: block;
+            width: 100%;
+            min-height: 260px;
+            background-color: black;
+        }
+
+        .result-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #175cd3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .result-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 900px) {
+            .source-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-container {
+                width: 94%;
+                padding: 24px 0;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .source-buttons,
+            .photo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .photo-card img {
+                height: 240px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <h1>Fotoğraf ve Video Önericisi</h1>
-    <form id="searchForm">
-        <input type="text" id="query" placeholder="Arama metni" required />
-        <select id="source" style="margin-left: 8px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-            <option value="pexels">Pexels</option>
-            <option value="pixabay">Pixabay</option>
-            <option value="web">Web Arama</option>
-            <option value="ai">Robot Resmi Üretme</option>
-            <!-- Stock:pexels,pixabay & web:bing&duckduckgo & generator: -->
-        </select>
-        <button type="submit">Ara</button>
-    </form>
-    <div id="results"></div>
+    <main class="page-container">
+        <header class="header">
+            <h1>Fotoğraf ve Video Önericisi</h1>
+            <p>
+                Arama metnini yazın ve kullanmak istediğiniz kaynağa tıklayın.
+            </p>
+        </header>
+
+        <section class="search-panel">
+            <label for="query">
+                <strong>Arama metni</strong>
+            </label>
+
+            <input type="text" id="query" class="search-input" placeholder="Örneğin: İstanbul, doğa, teknoloji..."
+                autocomplete="off">
+
+            <div class="source-title">
+                Arama kaynağını seçin
+            </div>
+
+            <div class="source-buttons">
+                <button type="button" class="source-button pexels-button" data-endpoint="searchByPexels">
+                    Pexels
+                </button>
+
+                <button type="button" class="source-button pixabay-button" data-endpoint="searchByPixabay">
+                    Pixabay
+                </button>
+
+                <button type="button" class="source-button web-button" data-endpoint="searchByWeb">
+                    Web Arama
+                </button>
+
+                <button type="button" class="source-button robot-button" data-endpoint="createRobot">
+                    Robot Resmi Üret
+                </button>
+            </div>
+
+            <div id="statusContainer" class="status-container"></div>
+        </section>
+
+        <section id="results" class="results-container"></section>
+    </main>
+
     <script>
-        document.getElementById('searchForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const query = document.getElementById('query').value.trim();
+        const API_BASE_URL = "http://localhost:8000";
+
+        const queryInput = document.getElementById("query");
+        const resultsContainer = document.getElementById("results");
+        const statusContainer = document.getElementById("statusContainer");
+        const sourceButtons = document.querySelectorAll(".source-button");
+
+        sourceButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                const endpoint = button.dataset.endpoint;
+                searchMedia(endpoint);
+            });
+        });
+
+        queryInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                searchMedia("searchByPexels");
+            }
+        });
+
+        async function searchMedia(endpoint) {
+            const query = queryInput.value.trim();
+
             if (!query) {
+                showStatus(
+                    "Lütfen önce bir arama metni girin.",
+                    "error"
+                );
+
+                queryInput.focus();
                 return;
             }
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-            const loading = document.createElement('p');
-            loading.textContent = 'Sonuçlar getiriliyor...';
-            resultsDiv.appendChild(loading);
-            const sourceSelect = document.getElementById('source');
-            const selectedSource = sourceSelect ? sourceSelect.value : 'pexels';
-            const endpoint =
-                selectedSource === 'pixabay' ? 'searchByPixabay' :
-                    selectedSource === 'web' ? 'searchByWeb' :
-                        selectedSource === 'ai' ? 'createRobot' :
-                            'searchByPexels';
-            fetch('http://localhost:8000/' + endpoint + '?query=' + encodeURIComponent(query))
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Sunucu yanıtı hatası');
+
+            clearResults();
+            setButtonsDisabled(true);
+
+            showStatus(
+                "Sonuçlar getiriliyor...",
+                "loading"
+            );
+
+            const requestUrl =
+                API_BASE_URL +
+                "/" +
+                endpoint +
+                "?query=" +
+                encodeURIComponent(query);
+
+            try {
+                const response = await fetch(requestUrl, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    resultsDiv.innerHTML = '';
-                    if (!data || (!data.photos && !data.videos)) {
-                        const noData = document.createElement('p');
-                        noData.textContent = 'Sonuç alınamadı. Sunucu çalışıyor mu ve API anahtarınız tanımlı mı?';
-                        resultsDiv.appendChild(noData);
-                        return;
-                    }
-                    if (data.photos && data.photos.length > 0) {
-                        const photoSection = document.createElement('div');
-                        photoSection.className = 'media-section photo-container';
-                        const photoTitle = document.createElement('h2');
-                        photoTitle.textContent = 'Fotoğraflar';
-                        photoSection.appendChild(photoTitle);
-                        data.photos.forEach(photo => {
-                            const img = document.createElement('img');
-                            img.src = photo.image_url;
-                            img.alt = photo.photographer || query;
-                            photoSection.appendChild(img);
-                        });
-                        resultsDiv.appendChild(photoSection);
-                    }
-                    if (data.videos && data.videos.length > 0) {
-                        const videoSection = document.createElement('div');
-                        videoSection.className = 'media-section video-container';
-                        const videoTitle = document.createElement('h2');
-                        videoTitle.textContent = 'Videolar';
-                        videoSection.appendChild(videoTitle);
-                        data.videos.forEach(videoObj => {
-                            const video = document.createElement('video');
-                            video.src = videoObj.video_url;
-                            video.controls = true;
-                            videoSection.appendChild(video);
-                        });
-                        resultsDiv.appendChild(videoSection);
-                    }
-                    if ((!data.photos || data.photos.length === 0) && (!data.videos || data.videos.length === 0)) {
-                        const noResults = document.createElement('p');
-                        noResults.textContent = 'Sonuç bulunamadı.';
-                        resultsDiv.appendChild(noResults);
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    resultsDiv.innerHTML = '';
-                    const err = document.createElement('p');
-                    err.textContent = 'Bir hata oluştu: ' + error.message;
-                    resultsDiv.appendChild(err);
                 });
-        });
+
+                const data = await readJsonResponse(response);
+
+                if (!response.ok) {
+                    const errorMessage =
+                        data && data.error
+                            ? data.error
+                            : "Sunucu yanıtı hatası oluştu.";
+
+                    throw new Error(errorMessage);
+                }
+
+                statusContainer.innerHTML = "";
+                renderResults(data, query);
+            } catch (error) {
+                console.error("API isteği başarısız:", error);
+
+                showStatus(
+                    "Bir hata oluştu: " + error.message,
+                    "error"
+                );
+            } finally {
+                setButtonsDisabled(false);
+            }
+        }
+
+        async function readJsonResponse(response) {
+            const responseText = await response.text();
+
+            if (!responseText) {
+                return {};
+            }
+
+            try {
+                return JSON.parse(responseText);
+            } catch (error) {
+                throw new Error(
+                    "Sunucu geçerli bir JSON yanıtı döndürmedi."
+                );
+            }
+        }
+
+        function renderResults(data, query) {
+            clearResults();
+
+            const photos = Array.isArray(data.photos)
+                ? data.photos
+                : [];
+
+            const videos = Array.isArray(data.videos)
+                ? data.videos
+                : [];
+
+            if (photos.length === 0 && videos.length === 0) {
+                showStatus(
+                    "Bu arama için sonuç bulunamadı.",
+                    "info"
+                );
+
+                return;
+            }
+
+            if (photos.length > 0) {
+                renderPhotos(photos, query);
+            }
+
+            if (videos.length > 0) {
+                renderVideos(videos);
+            }
+        }
+
+        function renderPhotos(photos, query) {
+            const section = document.createElement("section");
+            section.className = "media-section";
+
+            const title = document.createElement("h2");
+            title.textContent = "Fotoğraflar";
+
+            const grid = document.createElement("div");
+            grid.className = "photo-grid";
+
+            photos.forEach(function (photo) {
+                const imageUrl =
+                    photo.image_url ||
+                    photo.url ||
+                    photo.src;
+
+                if (!imageUrl) {
+                    return;
+                }
+
+                const card = document.createElement("article");
+                card.className = "photo-card";
+
+                const image = document.createElement("img");
+                image.src = imageUrl;
+                image.alt =
+                    photo.photographer ||
+                    photo.title ||
+                    query;
+
+                image.loading = "lazy";
+
+                image.addEventListener("error", function () {
+                    card.remove();
+                });
+
+                card.appendChild(image);
+
+                const photographer =
+                    photo.photographer ||
+                    photo.author ||
+                    photo.creator;
+
+                const pageUrl =
+                    photo.page_url ||
+                    photo.source_url ||
+                    photo.link;
+
+                if (photographer || pageUrl) {
+                    const info = document.createElement("div");
+                    info.className = "photo-info";
+
+                    if (photographer) {
+                        const photographerText =
+                            document.createElement("div");
+
+                        photographerText.textContent =
+                            "Fotoğrafçı: " + photographer;
+
+                        info.appendChild(photographerText);
+                    }
+
+                    if (pageUrl) {
+                        const link = document.createElement("a");
+                        link.className = "result-link";
+                        link.href = pageUrl;
+                        link.target = "_blank";
+                        link.rel = "noopener noreferrer";
+                        link.textContent = "Kaynağı aç";
+
+                        info.appendChild(link);
+                    }
+
+                    card.appendChild(info);
+                }
+
+                grid.appendChild(card);
+            });
+
+            section.appendChild(title);
+            section.appendChild(grid);
+            resultsContainer.appendChild(section);
+        }
+
+        function renderVideos(videos) {
+            const section = document.createElement("section");
+            section.className = "media-section";
+
+            const title = document.createElement("h2");
+            title.textContent = "Videolar";
+
+            const grid = document.createElement("div");
+            grid.className = "video-grid";
+
+            videos.forEach(function (videoObject) {
+                const videoUrl =
+                    videoObject.video_url ||
+                    videoObject.url ||
+                    videoObject.src;
+
+                if (!videoUrl) {
+                    return;
+                }
+
+                const card = document.createElement("article");
+                card.className = "video-card";
+
+                const video = document.createElement("video");
+                video.src = videoUrl;
+                video.controls = true;
+                video.preload = "metadata";
+                video.playsInline = true;
+
+                if (videoObject.poster_url) {
+                    video.poster = videoObject.poster_url;
+                }
+
+                video.addEventListener("error", function () {
+                    card.remove();
+                });
+
+                card.appendChild(video);
+                grid.appendChild(card);
+            });
+
+            section.appendChild(title);
+            section.appendChild(grid);
+            resultsContainer.appendChild(section);
+        }
+
+        function showStatus(message, type) {
+            statusContainer.innerHTML = "";
+
+            const paragraph = document.createElement("p");
+            paragraph.className = "status-message";
+
+            if (type === "loading") {
+                paragraph.classList.add("loading-message");
+            } else if (type === "error") {
+                paragraph.classList.add("error-message");
+            } else {
+                paragraph.classList.add("info-message");
+            }
+
+            paragraph.textContent = message;
+            statusContainer.appendChild(paragraph);
+        }
+
+        function clearResults() {
+            resultsContainer.innerHTML = "";
+        }
+
+        function setButtonsDisabled(disabled) {
+            sourceButtons.forEach(function (button) {
+                button.disabled = disabled;
+            });
+        }
     </script>
 </body>
+
 </html>
