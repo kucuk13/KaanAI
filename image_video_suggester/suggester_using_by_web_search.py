@@ -258,40 +258,103 @@ def _search_duckduckgo_images(
     return results
 
 
-def _query_terms(query: str) -> List[str]:
-    return [
+def _text_terms(value: Any) -> set[str]:
+    """Metni/URL'yi kelimelere ayırır; alt metin eşleşmesini engeller."""
+    normalized = urllib.parse.unquote(_clean_text(value)).casefold()
+    return {
         term
-        for term in re.findall(r"\w+", query.casefold(), flags=re.UNICODE)
+        for term in re.findall(r"[^\W_]+", normalized, flags=re.UNICODE)
+        if len(term) > 1
+    }
+
+
+def _query_terms(query: str) -> List[str]:
+    """Sorgu kelimelerini sırayı koruyarak ve tekrarları atarak döndürür."""
+    terms = [
+        term
+        for term in re.findall(
+            r"[^\W_]+",
+            query.casefold(),
+            flags=re.UNICODE,
+        )
         if len(term) > 1
     ]
+    return list(dict.fromkeys(terms))
+
+
+def _relevance_data(
+    item: Dict[str, Any],
+    query: str,
+) -> tuple[int, int, int, bool]:
+    """Puan, toplam eşleşme, başlık eşleşmesi ve tam ifade bilgisini döndürür."""
+    query_terms = _query_terms(query)
+    if not query_terms:
+        return 0, 0, 0, False
+
+    title = _clean_text(item.get("title")).casefold()
+    page_url = urllib.parse.unquote(
+        _clean_text(item.get("page_url"))
+    ).casefold()
+    original_url = urllib.parse.unquote(
+        _clean_text(item.get("original_image_url"))
+    ).casefold()
+
+    title_terms = _text_terms(title)
+    page_terms = _text_terms(page_url)
+    original_terms = _text_terms(original_url)
+    all_terms = title_terms | page_terms | original_terms
+
+    matched_terms = sum(term in all_terms for term in query_terms)
+    title_hits = sum(term in title_terms for term in query_terms)
+
+    normalized_query = " ".join(query_terms)
+    normalized_title = " ".join(
+        re.findall(r"[^\W_]+", title, flags=re.UNICODE)
+    )
+    exact_phrase = bool(
+        normalized_query and normalized_query in normalized_title
+    )
+
+    score = 0
+    if exact_phrase:
+        score += 100
+    if matched_terms == len(query_terms):
+        score += 50
+
+    score += title_hits * 12
+    score += sum(term in page_terms for term in query_terms) * 4
+    score += sum(term in original_terms for term in query_terms) * 2
+    score -= (len(query_terms) - matched_terms) * 25
+
+    return score, matched_terms, title_hits, exact_phrase
 
 
 def _relevance_score(item: Dict[str, Any], query: str) -> int:
-    """
-    Sonuçları başlık ve URL içinde sorgu ifadelerinin geçmesine göre sıralar.
-    Bu yalnızca hafif bir iyileştirmedir; arama motorunun sırasını tamamen
-    değiştirmez.
-    """
-    title = _clean_text(item.get("title")).casefold()
-    page_url = _clean_text(item.get("page_url")).casefold()
-    original_url = _clean_text(item.get("original_image_url")).casefold()
-    haystack = f"{title} {page_url} {original_url}"
+    return _relevance_data(item, query)[0]
 
-    normalized_query = " ".join(_query_terms(query))
-    score = 0
 
-    if normalized_query and normalized_query in haystack:
-        score += 20
+def _is_relevant(item: Dict[str, Any], query: str) -> bool:
+    """Alakasız sonuçları yalnızca puanlamak yerine gerçekten eler."""
+    query_terms = _query_terms(query)
+    if not query_terms:
+        return False
 
-    for term in _query_terms(query):
-        if term in title:
-            score += 5
-        if term in page_url:
-            score += 2
-        if term in original_url:
-            score += 1
+    _score, matched_terms, title_hits, exact_phrase = _relevance_data(
+        item,
+        query,
+    )
 
-    return score
+    if exact_phrase:
+        return True
+
+    term_count = len(query_terms)
+    if term_count == 1:
+        return matched_terms == 1
+    if term_count <= 3:
+        return matched_terms == term_count and title_hits >= 1
+
+    required_matches = max(2, (term_count * 3 + 3) // 4)
+    return matched_terms >= required_matches and title_hits >= 1
 
 
 def _deduplicate(
@@ -341,25 +404,31 @@ def fetch_suggestions(
     )
 
     all_results = list(bing_results)
+    unique_results = _deduplicate(all_results)
+    relevant_results = [
+        item for item in unique_results if _is_relevant(item, query)
+    ]
 
-    # Bing yeterli sonuç vermezse DuckDuckGo ile tamamla.
-    if len(all_results) < requested_count:
+    # Ham sonuç sayısına değil, gerçekten alakalı sonuç sayısına bak.
+    if len(relevant_results) < requested_count:
         ddg_results = _search_duckduckgo_images(query, candidate_limit)
         print(
             f"[WEB] DuckDuckGo Görseller '{query}' için "
             f"{len(ddg_results)} sonuç döndürdü."
         )
         all_results.extend(ddg_results)
-
-    unique_results = _deduplicate(all_results)
+        unique_results = _deduplicate(all_results)
+        relevant_results = [
+            item for item in unique_results if _is_relevant(item, query)
+        ]
 
     # Python sort kararlıdır; eşit puanlarda arama motorunun özgün sırası korunur.
-    unique_results.sort(
+    relevant_results.sort(
         key=lambda item: _relevance_score(item, query),
         reverse=True,
     )
 
-    photos = unique_results[:requested_count]
+    photos = relevant_results[:requested_count]
 
     # Front-end için sıralı id ekle.
     for index, item in enumerate(photos, start=1):
