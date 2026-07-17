@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Fotoğraf ve Video Önericisi</title>
 
     <style>
@@ -14,26 +13,31 @@
 
         body {
             margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
-            background-color: #f4f6f8;
+            background: #f4f6f8;
             color: #2c3e50;
         }
 
+        button,
+        input,
+        textarea {
+            font: inherit;
+        }
+
         .page-container {
-            width: min(1200px, 92%);
+            width: min(1320px, 94%);
             margin: 0 auto;
-            padding: 40px 0;
+            padding: 36px 0 60px;
         }
 
         .header {
+            margin-bottom: 24px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
         .header h1 {
-            margin-bottom: 10px;
-            font-size: 36px;
+            margin: 0 0 10px;
+            font-size: clamp(28px, 4vw, 38px);
         }
 
         .header p {
@@ -42,60 +46,140 @@
             font-size: 17px;
         }
 
-        .search-panel {
-            background-color: white;
-            border-radius: 14px;
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 6px;
+            background: #e9eef5;
+            border-radius: 12px;
+        }
+
+        .tab-button {
+            flex: 1;
+            min-height: 48px;
+            padding: 12px 16px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #475467;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background: #fff;
+            color: #175cd3;
+            box-shadow: 0 3px 12px rgba(16, 24, 40, 0.08);
+        }
+
+        .tab-panel[hidden] {
+            display: none;
+        }
+
+        .panel {
             padding: 24px;
+            background: #fff;
+            border-radius: 14px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
-        .search-input {
+        .panel-heading {
+            margin-bottom: 18px;
+        }
+
+        .panel-heading h2 {
+            margin: 0 0 7px;
+            font-size: 23px;
+        }
+
+        .panel-heading p {
+            margin: 0;
+            color: #667085;
+            line-height: 1.55;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .search-input,
+        .batch-textarea,
+        .result-count-input {
+            border: 1px solid #d0d5dd;
+            border-radius: 9px;
+            background: #fff;
+            color: #2c3e50;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input,
+        .batch-textarea {
             width: 100%;
             padding: 14px 16px;
-            border: 1px solid #d0d5dd;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .search-input:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
-        }
-
-        .search-options {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 14px;
-        }
-
-        .search-options label {
-            font-size: 14px;
-            color: #475467;
-        }
-
-        .result-count-input {
-            width: 80px;
-            padding: 10px 12px;
-            border: 1px solid #d0d5dd;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
+        .search-input:focus,
+        .batch-textarea:focus,
         .result-count-input:focus {
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
         }
 
+        .batch-textarea {
+            min-height: 300px;
+            resize: vertical;
+            line-height: 1.55;
+            tab-size: 4;
+        }
+
+        .textarea-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 9px;
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .line-counter {
+            flex: 0 0 auto;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .search-options,
+        .batch-options {
+            display: flex;
+            align-items: end;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .option-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .option-field label {
+            color: #475467;
+            font-size: 14px;
+        }
+
+        .result-count-input {
+            width: 110px;
+            padding: 11px 12px;
+        }
+
         .source-title {
-            margin-top: 24px;
-            margin-bottom: 12px;
+            margin: 24px 0 12px;
             font-size: 18px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .source-buttons {
@@ -104,47 +188,118 @@
             gap: 12px;
         }
 
-        .source-button {
-            min-height: 55px;
-            padding: 12px;
-            border: none;
+        .source-button,
+        .primary-button,
+        .secondary-button,
+        .danger-button {
+            min-height: 50px;
+            padding: 12px 18px;
+            border: 0;
             border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
             transition: transform 0.2s, opacity 0.2s;
         }
 
-        .source-button:hover {
+        .source-button:hover,
+        .primary-button:hover,
+        .secondary-button:hover,
+        .danger-button:hover {
             transform: translateY(-2px);
-            opacity: 0.9;
+            opacity: 0.92;
         }
 
-        .source-button:disabled {
+        button:disabled,
+        input:disabled,
+        textarea:disabled {
             cursor: not-allowed;
             opacity: 0.55;
-            transform: none;
+            transform: none !important;
+        }
+
+        .source-button {
+            color: #fff;
+            font-size: 16px;
         }
 
         .pexels-button {
-            background-color: #05a081;
+            background: #05a081;
         }
 
         .pixabay-button {
-            background-color: #2d77ff;
+            background: #2d77ff;
         }
 
         .web-button {
-            background-color: #8e44ad;
+            background: #8e44ad;
         }
 
         .robot-button {
-            background-color: #e67e22;
+            background: #e67e22;
+        }
+
+        .primary-button {
+            background: #175cd3;
+            color: #fff;
+        }
+
+        .secondary-button {
+            background: #eaecf0;
+            color: #344054;
+        }
+
+        .danger-button {
+            background: #d92d20;
+            color: #fff;
+        }
+
+        .batch-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .all-sources-box {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+            padding: 8px 10px;
+            background: #f8fafc;
+            border: 1px solid #e4e7ec;
+            border-radius: 9px;
+        }
+
+        .source-chip,
+        .provider-badge {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .source-chip.pexels,
+        .provider-badge.pexels {
+            background: #05a081;
+        }
+
+        .source-chip.pixabay,
+        .provider-badge.pixabay {
+            background: #2d77ff;
+        }
+
+        .provider-badge.default {
+            background: #667085;
         }
 
         .status-container {
-            margin-top: 24px;
+            margin-top: 22px;
         }
 
         .status-message {
@@ -154,22 +309,44 @@
         }
 
         .loading-message {
-            background-color: #eef6ff;
+            background: #eef6ff;
             color: #175cd3;
         }
 
         .error-message {
-            background-color: #fef3f2;
+            background: #fef3f2;
             color: #b42318;
         }
 
         .info-message {
-            background-color: #f2f4f7;
+            background: #f2f4f7;
             color: #475467;
         }
 
-        .results-container {
-            margin-top: 30px;
+        .success-message {
+            background: #ecfdf3;
+            color: #027a48;
+        }
+
+        .progress-track {
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+            background: rgba(23, 92, 211, 0.15);
+            border-radius: 999px;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background: currentColor;
+            border-radius: inherit;
+            transition: width 0.25s ease;
+        }
+
+        .results-container,
+        .batch-results {
+            margin-top: 28px;
         }
 
         .media-section {
@@ -184,87 +361,189 @@
 
         .photo-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 18px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
         }
 
         .photo-card,
         .video-card {
+            min-width: 0;
             overflow: hidden;
-            background-color: white;
+            background: #fff;
+            border: 1px solid #eaecf0;
             border-radius: 12px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.07);
         }
 
         .photo-card img {
             display: block;
             width: 100%;
-            height: 260px;
+            height: 250px;
             object-fit: cover;
-        }
-
-        .photo-info {
-            padding: 12px;
-            font-size: 14px;
-            color: #667085;
-        }
-
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
         }
 
         .video-card video {
             display: block;
             width: 100%;
-            min-height: 260px;
-            background-color: black;
+            min-height: 210px;
+            max-height: 360px;
+            background: #000;
+        }
+
+        .photo-info,
+        .video-info {
+            padding: 11px 12px;
+            color: #667085;
+            font-size: 13px;
         }
 
         .result-link {
             display: inline-block;
-            margin-top: 8px;
+            margin-top: 7px;
             color: #175cd3;
+            font-weight: 700;
             text-decoration: none;
-            font-weight: bold;
         }
 
         .result-link:hover {
             text-decoration: underline;
         }
 
-        @media (max-width: 900px) {
+        .sentence-result {
+            margin-top: 22px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #e4e7ec;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(16, 24, 40, 0.06);
+        }
+
+        .sentence-result-header {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .sentence-result-index {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 36px;
+            padding: 4px;
+            background: #f2f4f7;
+            border-radius: 8px;
+            color: #475467;
+            font-weight: 700;
+        }
+
+        .sentence-result h3 {
+            margin: 5px 0 0;
+            overflow-wrap: anywhere;
+            font-size: 18px;
+            line-height: 1.45;
+        }
+
+        .provider-result {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #eaecf0;
+        }
+
+        .provider-result:first-of-type {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
+        }
+
+        .provider-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .provider-count {
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .inline-message {
+            margin: 0;
+            padding: 12px 14px;
+            background: #f2f4f7;
+            border-radius: 8px;
+            color: #475467;
+        }
+
+        .inline-message.error {
+            background: #fef3f2;
+            color: #b42318;
+        }
+
+        @media (max-width: 1000px) {
             .source-buttons {
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .photo-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
+            .photo-grid,
             .video-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .page-container {
-                width: 94%;
-                padding: 24px 0;
+                width: 95%;
+                padding-top: 22px;
             }
 
-            .header h1 {
-                font-size: 28px;
+            .panel {
+                padding: 18px;
+            }
+
+            .tabs {
+                flex-direction: column;
             }
 
             .source-buttons,
-            .photo-grid {
+            .photo-grid,
+            .video-grid {
                 grid-template-columns: 1fr;
             }
 
-            .photo-card img {
-                height: 240px;
+            .batch-options,
+            .batch-actions {
+                align-items: stretch;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .batch-actions {
+                margin-left: 0;
+            }
+
+            .batch-actions button,
+            .result-count-input {
+                width: 100%;
+            }
+
+            .textarea-meta,
+            .provider-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .sentence-result {
+                padding: 15px;
             }
         }
     </style>
@@ -274,54 +553,114 @@
     <main class="page-container">
         <header class="header">
             <h1>Fotoğraf ve Video Önericisi</h1>
-            <p>
-                Arama metnini yazın ve kullanmak istediğiniz kaynağa tıklayın.
-            </p>
+            <p>Tekli arama yapın veya çok sayıda cümle için Pexels ve Pixabay video önerileri alın.</p>
         </header>
 
-        <section class="search-panel">
-            <label for="query">
-                <strong>Arama metni</strong>
-            </label>
+        <nav class="tabs" role="tablist" aria-label="Arama türü">
+            <button type="button" id="singleTabButton" class="tab-button active" role="tab" aria-selected="true"
+                aria-controls="singleTabPanel" data-tab="singleTabPanel">
+                Tekli Arama
+            </button>
+            <button type="button" id="batchTabButton" class="tab-button" role="tab" aria-selected="false"
+                aria-controls="batchTabPanel" data-tab="batchTabPanel">
+                Toplu Video Önerileri
+            </button>
+        </nav>
 
-            <input type="text" id="query" class="search-input" placeholder="Örneğin: İstanbul, doğa, teknoloji..."
-                autocomplete="off">
+        <section id="singleTabPanel" class="tab-panel" role="tabpanel" aria-labelledby="singleTabButton">
+            <div class="panel">
+                <label for="query" class="field-label">Arama metni</label>
+                <input type="text" id="query" class="search-input" placeholder="Örneğin: İstanbul, doğa, teknoloji..."
+                    autocomplete="off">
 
-            <div class="search-options">
-                <label for="resultCount">Sonuç sayısı</label>
-                <input type="number" id="resultCount" class="result-count-input" value="4" min="1" max="50" step="1">
+                <div class="search-options">
+                    <div class="option-field">
+                        <label for="resultCount">Sonuç sayısı</label>
+                        <input type="number" id="resultCount" class="result-count-input" value="4" min="1" max="50"
+                            step="1">
+                    </div>
+                </div>
+
+                <div class="source-title">Arama kaynağını seçin</div>
+                <div class="source-buttons">
+                    <button type="button" class="source-button pexels-button" data-endpoint="searchByPexels">
+                        Pexels
+                    </button>
+                    <button type="button" class="source-button pixabay-button" data-endpoint="searchByPixabay"
+                        title="Pixabay üzerinde görsel ve video arar">
+                        Pixabay
+                    </button>
+                    <button type="button" class="source-button web-button" data-endpoint="searchByWeb">
+                        Web Arama
+                    </button>
+                    <button type="button" class="source-button robot-button" data-endpoint="createRobot">
+                        Robot Resmi Üret
+                    </button>
+                </div>
+
+                <div id="statusContainer" class="status-container" aria-live="polite"></div>
             </div>
 
-            <div class="source-title">
-                Arama kaynağını seçin
-            </div>
-
-            <div class="source-buttons">
-                <button type="button" class="source-button pexels-button" data-endpoint="searchByPexels">
-                    Pexels
-                </button>
-
-                <button type="button" class="source-button pixabay-button" data-endpoint="searchByPixabay">
-                    Pixabay
-                </button>
-
-                <button type="button" class="source-button web-button" data-endpoint="searchByWeb">
-                    Web Arama
-                </button>
-
-                <button type="button" class="source-button robot-button" data-endpoint="createRobot">
-                    Robot Resmi Üret
-                </button>
-            </div>
-
-            <div id="statusContainer" class="status-container"></div>
+            <section id="results" class="results-container"></section>
         </section>
 
-        <section id="results" class="results-container"></section>
+        <section id="batchTabPanel" class="tab-panel" role="tabpanel" aria-labelledby="batchTabButton" hidden>
+            <div class="panel">
+                <div class="panel-heading">
+                    <h2>Toplu video önerileri</h2>
+                    <p>Her satıra bir cümle yazın. Satırların tamamı Pexels ve Pixabay kaynaklarında aranır.</p>
+                </div>
+
+                <label for="batchSentences" class="field-label">Cümleler</label>
+                <textarea id="batchSentences" class="batch-textarea" spellcheck="true"
+                    placeholder="Güneş dağların ardından doğuyor.&#10;Kalabalık bir şehir caddesinde insanlar yürüyor.&#10;Bir yazılımcı karanlık odada bilgisayar başında çalışıyor."></textarea>
+
+                <div class="textarea-meta">
+                    <span>Boş satırlar yok sayılır. Büyük listeler otomatik olarak küçük paketler hâlinde
+                        işlenir.</span>
+                    <span id="batchLineCount" class="line-counter">0 cümle</span>
+                </div>
+
+                <div class="batch-options">
+                    <div class="option-field">
+                        <label for="batchResultCount">Her kaynaktan video sayısı</label>
+                        <input type="number" id="batchResultCount" class="result-count-input" value="2" min="1" max="50"
+                            step="1">
+                    </div>
+
+                    <div class="option-field">
+                        <label>Kullanılacak kaynaklar</label>
+                        <div class="all-sources-box" aria-label="Pexels ve Pixabay">
+                            <span class="source-chip pexels">Pexels</span>
+                            <span class="source-chip pixabay">Pixabay</span>
+                        </div>
+                    </div>
+
+                    <div class="batch-actions">
+                        <button type="button" id="clearBatchButton" class="secondary-button">Temizle</button>
+                        <button type="button" id="cancelBatchButton" class="danger-button" disabled>Durdur</button>
+                        <button type="button" id="batchSearchButton" class="primary-button">Tümünü ara</button>
+                    </div>
+                </div>
+
+                <div id="batchStatusContainer" class="status-container" aria-live="polite"></div>
+            </div>
+
+            <section id="batchResults" class="batch-results"></section>
+        </section>
     </main>
 
     <script>
-        const API_BASE_URL = "http://localhost:8000";
+        const API_BASE_URL = window.location.protocol === "file:"
+            ? "http://localhost:8000"
+            : window.location.origin;
+        const BATCH_CHUNK_SIZE = 20;
+        const BATCH_REQUEST_CONCURRENCY = 2;
+        const LEGACY_PROVIDER_CONCURRENCY = 6;
+        const BATCH_PROVIDER_ENDPOINTS = ["searchByPexels", "searchByPixabayVideos"];
+
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabPanels = document.querySelectorAll(".tab-panel");
 
         const queryInput = document.getElementById("query");
         const resultCountInput = document.getElementById("resultCount");
@@ -329,119 +668,420 @@
         const statusContainer = document.getElementById("statusContainer");
         const sourceButtons = document.querySelectorAll(".source-button");
 
-        resultCountInput.addEventListener("input", function () {
-            // Kullanıcı alanı silip yeni bir sayı yazabilsin diye boşken
-            // hiçbir şeye zorlamıyoruz; sadece sınırların dışına çıkan
-            // sayıları anında 1-50 aralığına çekiyoruz.
-            if (resultCountInput.value === "") {
-                return;
-            }
+        const batchSentencesInput = document.getElementById("batchSentences");
+        const batchLineCount = document.getElementById("batchLineCount");
+        const batchResultCount = document.getElementById("batchResultCount");
+        const batchSearchButton = document.getElementById("batchSearchButton");
+        const clearBatchButton = document.getElementById("clearBatchButton");
+        const cancelBatchButton = document.getElementById("cancelBatchButton");
+        const batchStatusContainer = document.getElementById("batchStatusContainer");
+        const batchResults = document.getElementById("batchResults");
 
-            const min = Number(resultCountInput.min) || 1;
-            const max = Number(resultCountInput.max) || 50;
-            const typedValue = parseInt(resultCountInput.value, 10);
+        let batchAbortController = null;
 
-            if (Number.isNaN(typedValue)) {
-                return;
-            }
+        bindNumberInput(resultCountInput);
+        bindNumberInput(batchResultCount);
+        updateBatchLineCount();
 
-            const clampedValue = Math.min(max, Math.max(min, typedValue));
-
-            if (clampedValue !== typedValue) {
-                resultCountInput.value = clampedValue;
-            }
-        });
-
-        resultCountInput.addEventListener("blur", function () {
-            // Alan boş bırakılıp aramaya geçilirse varsayılan minimum değere döner.
-            if (resultCountInput.value === "") {
-                resultCountInput.value = resultCountInput.min || 1;
-            }
+        tabButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                activateTab(button.dataset.tab);
+            });
         });
 
         sourceButtons.forEach(function (button) {
             button.addEventListener("click", function () {
-                const endpoint = button.dataset.endpoint;
-                searchMedia(endpoint);
+                searchSingleMedia(button.dataset.endpoint);
             });
         });
 
         queryInput.addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                searchMedia("searchByPexels");
+                searchSingleMedia("searchByPexels");
             }
         });
 
-        async function searchMedia(endpoint) {
+        batchSentencesInput.addEventListener("input", updateBatchLineCount);
+        batchSearchButton.addEventListener("click", searchBatchVideos);
+        clearBatchButton.addEventListener("click", clearBatchForm);
+        cancelBatchButton.addEventListener("click", cancelBatchSearch);
+
+        function activateTab(panelId) {
+            tabButtons.forEach(function (button) {
+                const active = button.dataset.tab === panelId;
+                button.classList.toggle("active", active);
+                button.setAttribute("aria-selected", String(active));
+            });
+
+            tabPanels.forEach(function (panel) {
+                panel.hidden = panel.id !== panelId;
+            });
+        }
+
+        function bindNumberInput(input) {
+            input.addEventListener("input", function () {
+                if (input.value === "") {
+                    return;
+                }
+
+                const typedValue = parseInt(input.value, 10);
+                if (Number.isNaN(typedValue)) {
+                    return;
+                }
+
+                input.value = getClampedCount(input, typedValue);
+            });
+
+            input.addEventListener("blur", function () {
+                if (input.value === "") {
+                    input.value = input.min || "1";
+                }
+            });
+        }
+
+        async function searchSingleMedia(endpoint) {
             const query = queryInput.value.trim();
 
             if (!query) {
-                showStatus(
-                    "Lütfen önce bir arama metni girin.",
-                    "error"
-                );
-
+                showStatus(statusContainer, "Lütfen önce bir arama metni girin.", "error");
                 queryInput.focus();
                 return;
             }
 
-            clearResults();
-            setButtonsDisabled(true);
+            resultsContainer.innerHTML = "";
+            setSingleButtonsDisabled(true);
+            showStatus(statusContainer, "Sonuçlar getiriliyor...", "loading");
 
-            showStatus(
-                "Sonuçlar getiriliyor...",
-                "loading"
-            );
-
-            const resultCount = getResultCount();
-
-            const requestUrl =
-                API_BASE_URL +
-                "/" +
-                endpoint +
-                "?query=" +
-                encodeURIComponent(query) +
-                "&count=" +
-                encodeURIComponent(resultCount);
+            const requestUrl = API_BASE_URL + "/" + endpoint +
+                "?query=" + encodeURIComponent(query) +
+                "&count=" + encodeURIComponent(getClampedCount(resultCountInput));
 
             try {
                 const response = await fetch(requestUrl, {
-                    method: "GET",
-                    headers: {
-                        "Accept": "application/json"
-                    }
+                    headers: { "Accept": "application/json" }
                 });
-
                 const data = await readJsonResponse(response);
 
                 if (!response.ok) {
-                    const errorMessage =
-                        data && data.error
-                            ? data.error
-                            : "Sunucu yanıtı hatası oluştu.";
-
-                    throw new Error(errorMessage);
+                    throw new Error(data.error || "Sunucu yanıtı hatası oluştu.");
                 }
 
                 statusContainer.innerHTML = "";
-                renderResults(data, query);
+                renderSingleResults(data, query);
             } catch (error) {
                 console.error("API isteği başarısız:", error);
-
-                showStatus(
-                    "Bir hata oluştu: " + error.message,
-                    "error"
-                );
+                showStatus(statusContainer, "Bir hata oluştu: " + error.message, "error");
             } finally {
-                setButtonsDisabled(false);
+                setSingleButtonsDisabled(false);
             }
         }
 
-        function getResultCount() {
-            const minCount = Number(resultCountInput.min) || 1;
-            const maxCount = Number(resultCountInput.max) || 50;
-            const parsedValue = parseInt(resultCountInput.value, 10);
+        function getBatchSentences() {
+            return batchSentencesInput.value
+                .split(/\r?\n/)
+                .map(function (line) { return line.trim(); })
+                .filter(Boolean);
+        }
+
+        function updateBatchLineCount() {
+            const count = getBatchSentences().length;
+            batchLineCount.textContent = count + " cümle";
+        }
+
+        async function searchBatchVideos() {
+            const sentences = getBatchSentences();
+
+            if (sentences.length === 0) {
+                showStatus(batchStatusContainer, "Lütfen her satıra bir cümle gelecek şekilde metin girin.", "error");
+                batchSentencesInput.focus();
+                return;
+            }
+
+            const countPerProvider = getClampedCount(batchResultCount);
+            const chunks = chunkArray(sentences, BATCH_CHUNK_SIZE);
+            const totalProviderSearches = sentences.length * BATCH_PROVIDER_ENDPOINTS.length;
+
+            batchResults.innerHTML = "";
+            setBatchRunning(true);
+            batchAbortController = new AbortController();
+            showBatchProgress(0, sentences.length,
+                sentences.length + " cümle, toplam " + totalProviderSearches + " kaynak araması hazırlanıyor...");
+
+            let nextChunkIndex = 0;
+            let nextRenderChunkIndex = 0;
+            let processedSentenceCount = 0;
+            let failedChunkCount = 0;
+            const completedChunks = new Map();
+
+            async function runWorker() {
+                while (true) {
+                    const chunkIndex = nextChunkIndex;
+                    nextChunkIndex += 1;
+
+                    if (chunkIndex >= chunks.length) {
+                        return;
+                    }
+
+                    const sentenceChunk = chunks[chunkIndex];
+                    let resultItems;
+
+                    try {
+                        resultItems = await requestBatchChunk(
+                            sentenceChunk,
+                            countPerProvider,
+                            batchAbortController.signal
+                        );
+                    } catch (error) {
+                        if (error.name === "AbortError") {
+                            throw error;
+                        }
+
+                        failedChunkCount += 1;
+                        console.error("Toplu arama paketi başarısız:", error);
+                        resultItems = sentenceChunk.map(function (sentence, index) {
+                            return {
+                                index: index,
+                                sentence: sentence,
+                                providers: [{
+                                    provider: "SYSTEM",
+                                    provider_label: "İstek",
+                                    videos: [],
+                                    error: error.message
+                                }]
+                            };
+                        });
+                    }
+
+                    completedChunks.set(chunkIndex, resultItems);
+                    processedSentenceCount += sentenceChunk.length;
+
+                    while (completedChunks.has(nextRenderChunkIndex)) {
+                        const itemsToRender = completedChunks.get(nextRenderChunkIndex);
+                        completedChunks.delete(nextRenderChunkIndex);
+                        appendBatchResults(itemsToRender, nextRenderChunkIndex * BATCH_CHUNK_SIZE);
+                        nextRenderChunkIndex += 1;
+                    }
+
+                    showBatchProgress(
+                        processedSentenceCount,
+                        sentences.length,
+                        processedSentenceCount + " / " + sentences.length + " cümle işlendi."
+                    );
+                }
+            }
+
+            try {
+                const workerCount = Math.min(BATCH_REQUEST_CONCURRENCY, chunks.length);
+                const workers = Array.from({ length: workerCount }, function () {
+                    return runWorker();
+                });
+                await Promise.all(workers);
+
+                const message = failedChunkCount > 0
+                    ? "İşlem tamamlandı; " + failedChunkCount + " pakette istek hatası oluştu."
+                    : sentences.length + " cümle için Pexels ve Pixabay önerileri tamamlandı.";
+
+                showStatus(
+                    batchStatusContainer,
+                    message,
+                    failedChunkCount > 0 ? "info" : "success"
+                );
+            } catch (error) {
+                if (error.name === "AbortError") {
+                    showStatus(
+                        batchStatusContainer,
+                        "Toplu arama durduruldu. Daha önce gelen sonuçlar ekranda bırakıldı.",
+                        "info"
+                    );
+                } else {
+                    console.error("Toplu arama başarısız:", error);
+                    showStatus(batchStatusContainer, "Bir hata oluştu: " + error.message, "error");
+                }
+            } finally {
+                batchAbortController = null;
+                setBatchRunning(false);
+            }
+        }
+
+        async function requestBatchChunk(sentences, countPerProvider, signal) {
+            const response = await fetch(API_BASE_URL + "/batchVideoSuggestions", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    sentences: sentences,
+                    count: countPerProvider,
+                    providers: BATCH_PROVIDER_ENDPOINTS,
+                    sources: ["pexels", "pixabay"],
+                    endpoints: BATCH_PROVIDER_ENDPOINTS.map(function (endpoint) {
+                        return "/" + endpoint;
+                    })
+                }),
+                signal: signal
+            });
+
+            const data = await readJsonResponse(response);
+            if (response.ok) {
+                return Array.isArray(data.results) ? data.results : [];
+            }
+
+            const errorMessage = data.error || "Toplu arama isteği başarısız oldu.";
+            const normalizedError = String(errorMessage).toLocaleLowerCase("tr-TR");
+            const shouldUseCompatibilityMode =
+                response.status === 404 ||
+                normalizedError.includes("seçilmelidir") ||
+                normalizedError.includes("kaynak seç") ||
+                normalizedError.includes("endpoint");
+
+            if (!shouldUseCompatibilityMode) {
+                throw new Error(errorMessage);
+            }
+
+            console.warn(
+                "Toplu endpoint eski sürümle uyumsuz. Pexels ve Pixabay tekli endpoint'leri kullanılıyor.",
+                errorMessage
+            );
+
+            return requestBatchChunkViaSingleEndpoints(
+                sentences,
+                countPerProvider,
+                signal
+            );
+        }
+
+        async function requestBatchChunkViaSingleEndpoints(sentences, countPerProvider, signal) {
+            const providerDefinitions = [
+                {
+                    endpoint: "searchByPexels",
+                    provider: "PEXELS",
+                    providerLabel: "Pexels"
+                },
+                {
+                    endpoint: "searchByPixabayVideos",
+                    provider: "PIXABAY",
+                    providerLabel: "Pixabay"
+                }
+            ];
+
+            const results = sentences.map(function (sentence, index) {
+                return {
+                    index: index,
+                    sentence: sentence,
+                    providers: new Array(providerDefinitions.length)
+                };
+            });
+
+            const tasks = [];
+            sentences.forEach(function (sentence, sentenceIndex) {
+                providerDefinitions.forEach(function (providerDefinition, providerIndex) {
+                    tasks.push({
+                        sentence: sentence,
+                        sentenceIndex: sentenceIndex,
+                        providerIndex: providerIndex,
+                        providerDefinition: providerDefinition
+                    });
+                });
+            });
+
+            let nextTaskIndex = 0;
+
+            async function runProviderWorker() {
+                while (true) {
+                    if (signal.aborted) {
+                        throw new DOMException("İşlem durduruldu.", "AbortError");
+                    }
+
+                    const taskIndex = nextTaskIndex;
+                    nextTaskIndex += 1;
+
+                    if (taskIndex >= tasks.length) {
+                        return;
+                    }
+
+                    const task = tasks[taskIndex];
+                    const provider = task.providerDefinition;
+                    const requestUrl =
+                        API_BASE_URL +
+                        "/" + provider.endpoint +
+                        "?query=" + encodeURIComponent(task.sentence) +
+                        "&count=" + encodeURIComponent(countPerProvider);
+
+                    try {
+                        const response = await fetch(requestUrl, {
+                            method: "GET",
+                            headers: { "Accept": "application/json" },
+                            signal: signal
+                        });
+                        const data = await readJsonResponse(response);
+
+                        if (!response.ok) {
+                            throw new Error(data.error || provider.providerLabel + " isteği başarısız oldu.");
+                        }
+
+                        results[task.sentenceIndex].providers[task.providerIndex] = {
+                            provider: provider.provider,
+                            provider_label: provider.providerLabel,
+                            endpoint: "/" + provider.endpoint,
+                            videos: Array.isArray(data.videos) ? data.videos : [],
+                            error: null
+                        };
+                    } catch (error) {
+                        if (error.name === "AbortError") {
+                            throw error;
+                        }
+
+                        results[task.sentenceIndex].providers[task.providerIndex] = {
+                            provider: provider.provider,
+                            provider_label: provider.providerLabel,
+                            endpoint: "/" + provider.endpoint,
+                            videos: [],
+                            error: error.message
+                        };
+                    }
+                }
+            }
+
+            const workerCount = Math.min(LEGACY_PROVIDER_CONCURRENCY, tasks.length);
+            const workers = Array.from({ length: workerCount }, function () {
+                return runProviderWorker();
+            });
+            await Promise.all(workers);
+
+            return results;
+        }
+
+        function cancelBatchSearch() {
+            if (batchAbortController) {
+                cancelBatchButton.disabled = true;
+                batchAbortController.abort();
+            }
+        }
+
+        function clearBatchForm() {
+            batchSentencesInput.value = "";
+            batchResults.innerHTML = "";
+            batchStatusContainer.innerHTML = "";
+            updateBatchLineCount();
+            batchSentencesInput.focus();
+        }
+
+        function chunkArray(items, chunkSize) {
+            const chunks = [];
+            for (let index = 0; index < items.length; index += chunkSize) {
+                chunks.push(items.slice(index, index + chunkSize));
+            }
+            return chunks;
+        }
+
+        function getClampedCount(input, explicitValue) {
+            const minCount = Number(input.min) || 1;
+            const maxCount = Number(input.max) || 50;
+            const parsedValue = explicitValue === undefined
+                ? parseInt(input.value, 10)
+                : explicitValue;
 
             if (Number.isNaN(parsedValue)) {
                 return minCount;
@@ -452,7 +1092,6 @@
 
         async function readJsonResponse(response) {
             const responseText = await response.text();
-
             if (!responseText) {
                 return {};
             }
@@ -460,29 +1099,17 @@
             try {
                 return JSON.parse(responseText);
             } catch (error) {
-                throw new Error(
-                    "Sunucu geçerli bir JSON yanıtı döndürmedi."
-                );
+                throw new Error("Sunucu geçerli bir JSON yanıtı döndürmedi.");
             }
         }
 
-        function renderResults(data, query) {
-            clearResults();
-
-            const photos = Array.isArray(data.photos)
-                ? data.photos
-                : [];
-
-            const videos = Array.isArray(data.videos)
-                ? data.videos
-                : [];
+        function renderSingleResults(data, query) {
+            resultsContainer.innerHTML = "";
+            const photos = Array.isArray(data.photos) ? data.photos : [];
+            const videos = Array.isArray(data.videos) ? data.videos : [];
 
             if (photos.length === 0 && videos.length === 0) {
-                showStatus(
-                    "Bu arama için sonuç bulunamadı.",
-                    "info"
-                );
-
+                showStatus(statusContainer, "Bu arama için sonuç bulunamadı.", "info");
                 return;
             }
 
@@ -491,7 +1118,7 @@
             }
 
             if (videos.length > 0) {
-                renderVideos(videos);
+                renderVideoSection(resultsContainer, videos, "Videolar");
             }
         }
 
@@ -506,11 +1133,7 @@
             grid.className = "photo-grid";
 
             photos.forEach(function (photo) {
-                const imageUrl =
-                    photo.image_url ||
-                    photo.url ||
-                    photo.src;
-
+                const imageUrl = photo.image_url || photo.url || photo.src;
                 if (!imageUrl) {
                     return;
                 }
@@ -520,54 +1143,25 @@
 
                 const image = document.createElement("img");
                 image.src = imageUrl;
-                image.alt =
-                    photo.photographer ||
-                    photo.title ||
-                    query;
-
+                image.alt = photo.photographer || photo.title || query;
                 image.loading = "lazy";
-
-                image.addEventListener("error", function () {
-                    card.remove();
-                });
-
+                image.addEventListener("error", function () { card.remove(); });
                 card.appendChild(image);
 
-                const photographer =
-                    photo.photographer ||
-                    photo.author ||
-                    photo.creator;
-
-                const pageUrl =
-                    photo.page_url ||
-                    photo.source_url ||
-                    photo.link;
+                const photographer = photo.photographer || photo.author || photo.creator;
+                const pageUrl = photo.page_url || photo.source_url || photo.link;
 
                 if (photographer || pageUrl) {
                     const info = document.createElement("div");
                     info.className = "photo-info";
 
                     if (photographer) {
-                        const photographerText =
-                            document.createElement("div");
-
-                        photographerText.textContent =
-                            "Fotoğrafçı: " + photographer;
-
-                        info.appendChild(photographerText);
+                        const text = document.createElement("div");
+                        text.textContent = "Fotoğrafçı: " + photographer;
+                        info.appendChild(text);
                     }
 
-                    if (pageUrl) {
-                        const link = document.createElement("a");
-                        link.className = "result-link";
-                        link.href = pageUrl;
-                        link.target = "_blank";
-                        link.rel = "noopener noreferrer";
-                        link.textContent = "Kaynağı aç";
-
-                        info.appendChild(link);
-                    }
-
+                    appendSourceLink(info, pageUrl);
                     card.appendChild(info);
                 }
 
@@ -579,22 +1173,116 @@
             resultsContainer.appendChild(section);
         }
 
-        function renderVideos(videos) {
+        function renderVideoSection(parent, videos, titleText) {
             const section = document.createElement("section");
             section.className = "media-section";
 
             const title = document.createElement("h2");
-            title.textContent = "Videolar";
+            title.textContent = titleText;
 
+            section.appendChild(title);
+            section.appendChild(createVideoGrid(videos));
+            parent.appendChild(section);
+        }
+
+        function appendBatchResults(items, positionOffset) {
+            if (!Array.isArray(items) || items.length === 0) {
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            items.forEach(function (item, localPosition) {
+                const section = document.createElement("section");
+                section.className = "sentence-result";
+
+                const header = document.createElement("div");
+                header.className = "sentence-result-header";
+
+                const indexBadge = document.createElement("div");
+                indexBadge.className = "sentence-result-index";
+                indexBadge.textContent = String(positionOffset + localPosition + 1);
+
+                const title = document.createElement("h3");
+                title.textContent = item.sentence || "Cümle";
+
+                header.appendChild(indexBadge);
+                header.appendChild(title);
+                section.appendChild(header);
+
+                const providers = Array.isArray(item.providers) ? item.providers : [];
+                if (providers.length === 0) {
+                    const message = document.createElement("p");
+                    message.className = "inline-message";
+                    message.textContent = "Bu cümle için sağlayıcı sonucu dönmedi.";
+                    section.appendChild(message);
+                } else {
+                    providers.forEach(function (providerResult) {
+                        section.appendChild(createProviderResult(providerResult));
+                    });
+                }
+
+                fragment.appendChild(section);
+            });
+
+            batchResults.appendChild(fragment);
+        }
+
+        function createProviderResult(providerResult) {
+            const wrapper = document.createElement("div");
+            wrapper.className = "provider-result";
+
+            const heading = document.createElement("div");
+            heading.className = "provider-heading";
+
+            const providerName = providerResult.provider_label || providerResult.provider || "Kaynak";
+            const badge = document.createElement("span");
+            badge.className = "provider-badge " + providerCssClass(providerResult.provider);
+            badge.textContent = providerName;
+
+            const videos = Array.isArray(providerResult.videos) ? providerResult.videos : [];
+            const count = document.createElement("span");
+            count.className = "provider-count";
+            count.textContent = videos.length + " video";
+
+            heading.appendChild(badge);
+            heading.appendChild(count);
+            wrapper.appendChild(heading);
+
+            if (providerResult.error) {
+                const errorMessage = document.createElement("p");
+                errorMessage.className = "inline-message error";
+                errorMessage.textContent = "Kaynak hatası: " + providerResult.error;
+                wrapper.appendChild(errorMessage);
+            } else if (videos.length === 0) {
+                const emptyMessage = document.createElement("p");
+                emptyMessage.className = "inline-message";
+                emptyMessage.textContent = "Bu kaynakta video bulunamadı.";
+                wrapper.appendChild(emptyMessage);
+            } else {
+                wrapper.appendChild(createVideoGrid(videos));
+            }
+
+            return wrapper;
+        }
+
+        function providerCssClass(providerName) {
+            const normalized = String(providerName || "").toLowerCase();
+            if (normalized.includes("pexels")) {
+                return "pexels";
+            }
+            if (normalized.includes("pixabay")) {
+                return "pixabay";
+            }
+            return "default";
+        }
+
+        function createVideoGrid(videos) {
             const grid = document.createElement("div");
             grid.className = "video-grid";
 
             videos.forEach(function (videoObject) {
-                const videoUrl =
-                    videoObject.video_url ||
-                    videoObject.url ||
-                    videoObject.src;
-
+                const videoUrl = videoObject.video_url || videoObject.url || videoObject.src;
                 if (!videoUrl) {
                     return;
                 }
@@ -605,29 +1293,56 @@
                 const video = document.createElement("video");
                 video.src = videoUrl;
                 video.controls = true;
-                video.preload = "metadata";
+                video.preload = "none";
                 video.playsInline = true;
 
-                if (videoObject.poster_url) {
-                    video.poster = videoObject.poster_url;
+                const posterUrl = videoObject.poster_url || videoObject.thumbnail_url || videoObject.image_url;
+                if (posterUrl) {
+                    video.poster = posterUrl;
                 }
 
-                video.addEventListener("error", function () {
-                    card.remove();
-                });
-
+                video.addEventListener("error", function () { card.remove(); });
                 card.appendChild(video);
+
+                const pageUrl = videoObject.page_url || videoObject.source_url || videoObject.link;
+                const author = videoObject.videographer || videoObject.author || videoObject.creator;
+
+                if (author || pageUrl) {
+                    const info = document.createElement("div");
+                    info.className = "video-info";
+
+                    if (author) {
+                        const text = document.createElement("div");
+                        text.textContent = "Video sahibi: " + author;
+                        info.appendChild(text);
+                    }
+
+                    appendSourceLink(info, pageUrl);
+                    card.appendChild(info);
+                }
+
                 grid.appendChild(card);
             });
 
-            section.appendChild(title);
-            section.appendChild(grid);
-            resultsContainer.appendChild(section);
+            return grid;
         }
 
-        function showStatus(message, type) {
-            statusContainer.innerHTML = "";
+        function appendSourceLink(parent, pageUrl) {
+            if (!pageUrl) {
+                return;
+            }
 
+            const link = document.createElement("a");
+            link.className = "result-link";
+            link.href = pageUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.textContent = "Kaynağı aç";
+            parent.appendChild(link);
+        }
+
+        function showStatus(container, message, type) {
+            container.innerHTML = "";
             const paragraph = document.createElement("p");
             paragraph.className = "status-message";
 
@@ -635,22 +1350,50 @@
                 paragraph.classList.add("loading-message");
             } else if (type === "error") {
                 paragraph.classList.add("error-message");
+            } else if (type === "success") {
+                paragraph.classList.add("success-message");
             } else {
                 paragraph.classList.add("info-message");
             }
 
             paragraph.textContent = message;
-            statusContainer.appendChild(paragraph);
+            container.appendChild(paragraph);
         }
 
-        function clearResults() {
-            resultsContainer.innerHTML = "";
+        function showBatchProgress(processed, total, message) {
+            batchStatusContainer.innerHTML = "";
+
+            const box = document.createElement("div");
+            box.className = "status-message loading-message";
+
+            const text = document.createElement("div");
+            text.textContent = message;
+
+            const track = document.createElement("div");
+            track.className = "progress-track";
+
+            const bar = document.createElement("div");
+            bar.className = "progress-bar";
+            bar.style.width = total > 0 ? Math.min(100, (processed / total) * 100) + "%" : "0%";
+
+            track.appendChild(bar);
+            box.appendChild(text);
+            box.appendChild(track);
+            batchStatusContainer.appendChild(box);
         }
 
-        function setButtonsDisabled(disabled) {
+        function setSingleButtonsDisabled(disabled) {
             sourceButtons.forEach(function (button) {
                 button.disabled = disabled;
             });
+        }
+
+        function setBatchRunning(running) {
+            batchSentencesInput.disabled = running;
+            batchResultCount.disabled = running;
+            batchSearchButton.disabled = running;
+            clearBatchButton.disabled = running;
+            cancelBatchButton.disabled = !running;
         }
     </script>
 </body>
